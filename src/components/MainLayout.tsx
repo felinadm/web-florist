@@ -26,6 +26,8 @@ interface MainLayoutProps {
   title: string;
 }
 
+const ADMIN_AVATAR = "https://raw.githubusercontent.com/Ais-Build/assets/main/zhuxin-avatar.png"; // Placeholder path, user should upload to public/admin-avatar.png
+
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, onViewChange, onLogout, title }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const shopSettings = useLiveQuery(() => db.settings.toCollection().first());
@@ -104,11 +106,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
           className="w-full flex items-center p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-colors text-left group"
         >
           <div className="w-9 h-9 rounded-full bg-rose-500 flex items-center justify-center text-white font-bold text-sm shadow-inner overflow-hidden relative">
-            {shopSettings?.logoBase64 ? (
-              <img src={shopSettings.logoBase64} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-5 h-5" />
-            )}
+            <img src="/admin-avatar.png" alt="Admin Avatar" className="w-full h-full object-cover" onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://api.dicebear.com/7.x/avataaars/svg?seed=Zhuxin";
+            }} />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <Settings className="w-4 h-4 text-white" />
             </div>
@@ -200,11 +200,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
               className="flex items-center gap-2 p-1 hover:bg-slate-100 rounded-full transition-colors group"
             >
               <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 overflow-hidden border border-rose-200">
-                {shopSettings?.logoBase64 ? (
-                  <img src={shopSettings.logoBase64} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-5 h-5" />
-                )}
+                <img src="/admin-avatar.png" alt="Admin Profile" className="w-full h-full object-cover" onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://api.dicebear.com/7.x/avataaars/svg?seed=Zhuxin";
+                }} />
               </div>
               <span className="hidden sm:block text-xs font-black text-slate-700 group-hover:text-rose-600 transition-colors uppercase tracking-tight">
                 {shopSettings?.namaToko || 'Admin'}

@@ -62,12 +62,10 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onBackToStore }) => {
       >
         {/* Logo & Header */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-rose-600 rounded-[32px] flex items-center justify-center mx-auto mb-4 shadow-xl shadow-rose-200">
-            {shopSettings?.logoBase64 ? (
-              <img src={shopSettings.logoBase64} alt="Logo" className="w-full h-full object-cover rounded-[32px]" />
-            ) : (
-              <Flower2 className="w-10 h-10 text-white" />
-            )}
+          <div className="w-24 h-24 bg-rose-600 rounded-[32px] flex items-center justify-center mx-auto mb-4 shadow-xl shadow-rose-200 overflow-hidden">
+            <img src="/admin-avatar.png" alt="Admin Avatar" className="w-full h-full object-cover" onError={(e) => {
+              (e.target as HTMLImageElement).src = "https://api.dicebear.com/7.x/avataaars/svg?seed=Zhuxin";
+            }} />
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             {shopSettings?.namaToko || 'Zhuxin Florist'}

@@ -41,10 +41,10 @@ export default function App() {
       const count = await db.products.count();
       if (count === 0) {
         const initialProducts: Product[] = [
-          { id: '1', nama: 'Buket Mawar Merah', harga: 150000, stok: 20, kategori: 'Buket', createdAt: Date.now() },
-          { id: '2', nama: 'Bunga Matahari (Sunflower)', harga: 45000, stok: 15, kategori: 'Satuan', createdAt: Date.now() },
-          { id: '3', nama: 'Anggrek Bulan Putih', harga: 250000, stok: 10, kategori: 'Tanaman Pot', createdAt: Date.now() },
-          { id: '4', nama: 'Buket Tulip Pastel', harga: 350000, stok: 5, kategori: 'Buket', createdAt: Date.now() },
+          { id: '1', nama: 'Buket Soft Flower', harga: 150000, stok: 20, kategori: 'Buket', urlGambar: '/buket-soft.png', createdAt: Date.now() },
+          { id: '2', nama: 'Bunga Matahari (Sunflower)', harga: 45000, stok: 15, kategori: 'Satuan', urlGambar: '/sunflower.png', createdAt: Date.now() },
+          { id: '3', nama: 'Anggrek Bulan Putih', harga: 250000, stok: 10, kategori: 'Tanaman Pot', urlGambar: '/anggrek-putih.png', createdAt: Date.now() },
+          { id: '4', nama: 'Buket Tulip Pastel', harga: 350000, stok: 5, kategori: 'Buket', urlGambar: '/tulip-pastel.png', createdAt: Date.now() },
           { id: '5', nama: 'Bunga Lily Casablanca', harga: 85000, stok: 12, kategori: 'Satuan', createdAt: Date.now() },
         ];
         await db.products.bulkAdd(initialProducts);
