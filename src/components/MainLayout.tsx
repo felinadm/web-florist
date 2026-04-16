@@ -26,7 +26,7 @@ interface MainLayoutProps {
   title: string;
 }
 
-const ADMIN_AVATAR = "https://api.dicebear.com/7.x/avataaars/png?seed=Zhuxin&backgroundColor=ff6b6b";
+const ADMIN_AVATAR = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80";
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, onViewChange, onLogout, title }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -44,11 +44,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
     <div className="flex flex-col h-full bg-slate-900 text-slate-300">
       {/* Logo Section */}
       <div className="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
-        {shopSettings?.logoBase64 ? (
-          <img src={shopSettings.logoBase64} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
-        ) : (
-          <Flower2 className="w-8 h-8 text-rose-400 shrink-0" />
-        )}
+        <Flower2 className="w-8 h-8 text-rose-400 shrink-0" />
         <span className="ml-3 font-bold text-white text-lg tracking-tight truncate">
           {shopSettings?.namaToko || 'Zhuxin Florist'}
         </span>
@@ -121,9 +117,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 font-sans text-slate-900">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-50 font-sans text-slate-900">
       {/* Desktop Sidebar (Persistent) */}
-      <aside className="hidden lg:flex w-64 flex-col border-r border-slate-200 shrink-0">
+      <aside className="hidden lg:flex w-64 flex-col border-r border-slate-200 shrink-0 h-full">
         <SidebarContent />
       </aside>
 
@@ -156,9 +152,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
       </div>
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden relative">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0 sticky top-0 z-30">
+        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0 sticky top-0 z-30 w-full">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}

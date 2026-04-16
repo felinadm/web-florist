@@ -162,11 +162,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-rose-600 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200">
-              {shopSettings?.logoBase64 ? (
-                <img src={shopSettings.logoBase64} className="w-full h-full object-cover rounded-2xl" alt="Logo" referrerPolicy="no-referrer" />
-              ) : (
-                <Flower2 className="w-6 h-6 text-white" />
-              )}
+              <Flower2 className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-black text-slate-900 leading-none tracking-tight">
@@ -570,11 +566,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
           <div className="space-y-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-rose-600 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200">
-                {shopSettings?.logoBase64 ? (
-                  <img src={shopSettings.logoBase64} className="w-full h-full object-cover rounded-2xl" alt="Logo" referrerPolicy="no-referrer" />
-                ) : (
-                  <Flower2 className="w-6 h-6 text-white" />
-                )}
+                <Flower2 className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-black text-slate-900 tracking-tight">
                 {shopSettings?.namaToko || 'Zhuxin Florist'}
