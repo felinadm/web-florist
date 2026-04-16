@@ -18,10 +18,7 @@ import { db } from './lib/dexieDb';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<View>(() => {
-    const savedView = localStorage.getItem('currentView');
-    return (savedView as View) || 'customer';
-  });
+  const [currentView, setCurrentView] = useState<View>('customer');
   
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
