@@ -123,7 +123,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9FA] font-sans text-slate-900 pb-24 relative overflow-hidden">
+    <div className="min-h-screen bg-[#FFF9FA] font-sans text-slate-900 pb-24 relative">
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div 

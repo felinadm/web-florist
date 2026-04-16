@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Save, Store, User, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Camera, Save, Store, User, CheckCircle2, AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { db } from '../lib/dexieDb';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { motion, AnimatePresence } from 'motion/react';
@@ -67,6 +67,19 @@ export const Settings: React.FC = () => {
       console.error('Failed to save settings:', error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleResetDatabase = async () => {
+    if (window.confirm('Apakah Anda yakin ingin mereset database? Semua produk dan transaksi akan dihapus dan dikembalikan ke data awal.')) {
+      try {
+        await db.products.clear();
+        await db.transactions.clear();
+        // Settings are kept, but we could clear them too if needed
+        window.location.reload(); // Reload to trigger seedData in App.tsx
+      } catch (error) {
+        console.error('Failed to reset database:', error);
+      }
     }
   };
 
@@ -204,6 +217,24 @@ export const Settings: React.FC = () => {
                 )}
               </button>
             </div>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-red-100 shadow-sm space-y-6">
+            <div className="flex items-center gap-3 text-red-600">
+              <Trash2 className="w-6 h-6" />
+              <h3 className="font-black text-lg">Zona Bahaya</h3>
+            </div>
+            <p className="text-sm text-slate-500 font-medium">
+              Jika produk atau gambar tidak muncul, Anda dapat mereset database ke pengaturan awal. Semua data transaksi akan ikut terhapus.
+            </p>
+            <button 
+              onClick={handleResetDatabase}
+              className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Reset Semua Data & Gambar
+            </button>
           </div>
         </div>
       </div>

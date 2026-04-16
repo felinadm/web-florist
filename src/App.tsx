@@ -39,15 +39,25 @@ export default function App() {
   useEffect(() => {
     const seedData = async () => {
       const count = await db.products.count();
+      const initialProducts: Product[] = [
+        { id: '1', nama: 'Buket Soft Flower', harga: 150000, stok: 20, kategori: 'Buket', urlGambar: 'https://images.unsplash.com/photo-1523694576729-dc99e2c01707?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
+        { id: '2', nama: 'Bunga Matahari (Sunflower)', harga: 45000, stok: 15, kategori: 'Satuan', urlGambar: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
+        { id: '3', nama: 'Anggrek Bulan Putih', harga: 250000, stok: 10, kategori: 'Tanaman Pot', urlGambar: 'https://images.unsplash.com/photo-1599232458812-5883e7d32e6d?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
+        { id: '4', nama: 'Buket Tulip Pastel', harga: 350000, stok: 5, kategori: 'Buket', urlGambar: 'https://images.unsplash.com/photo-1520323232427-6b6230f72e2c?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
+        { id: '5', nama: 'Bunga Lily Casablanca', harga: 85000, stok: 12, kategori: 'Satuan', urlGambar: 'https://images.unsplash.com/photo-1519152368339-147bbad9969e?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
+      ];
+
       if (count === 0) {
-        const initialProducts: Product[] = [
-          { id: '1', nama: 'Buket Soft Flower', harga: 150000, stok: 20, kategori: 'Buket', urlGambar: 'https://images.unsplash.com/photo-1523694576729-dc99e2c01707?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-          { id: '2', nama: 'Bunga Matahari (Sunflower)', harga: 45000, stok: 15, kategori: 'Satuan', urlGambar: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-          { id: '3', nama: 'Anggrek Bulan Putih', harga: 250000, stok: 10, kategori: 'Tanaman Pot', urlGambar: 'https://images.unsplash.com/photo-1599232458812-5883e7d32e6d?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-          { id: '4', nama: 'Buket Tulip Pastel', harga: 350000, stok: 5, kategori: 'Buket', urlGambar: 'https://images.unsplash.com/photo-1520323232427-6b6230f72e2c?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-          { id: '5', nama: 'Bunga Lily Casablanca', harga: 85000, stok: 12, kategori: 'Satuan', urlGambar: 'https://images.unsplash.com/photo-1519152368339-147bbad9969e?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-        ];
         await db.products.bulkAdd(initialProducts);
+      } else {
+        // If products exist but might be missing images from old version, update them
+        const existingProducts = await db.products.toArray();
+        const needsUpdate = existingProducts.some(p => !p.urlGambar);
+        if (needsUpdate) {
+          for (const p of initialProducts) {
+            await db.products.update(p.id, { urlGambar: p.urlGambar });
+          }
+        }
       }
     };
     seedData();
