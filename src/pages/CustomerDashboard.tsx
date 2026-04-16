@@ -756,7 +756,15 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                   <div key={item.id} className="flex items-center gap-4 group">
                     <div className="w-20 h-20 rounded-2xl bg-slate-50 overflow-hidden flex-shrink-0 border border-slate-100">
                       {item.imageUrl ? (
-                        <img src={item.imageUrl} className="w-full h-full object-cover" alt={item.name} referrerPolicy="no-referrer" />
+                        <img 
+                          src={item.imageUrl} 
+                          className="w-full h-full object-cover" 
+                          alt={item.name} 
+                          referrerPolicy="no-referrer" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                          }}
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-300">
                           <Flower2 className="w-8 h-8" />
