@@ -154,16 +154,16 @@ export const Settings: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-black text-slate-900">Pengaturan Profil</h2>
-        <p className="text-slate-500 font-medium">Kelola identitas brand Zhuxin Florist Anda.</p>
+        <h2 className="text-2xl font-black text-slate-900 transition-colors">Pengaturan Profil</h2>
+        <p className="text-slate-500 font-medium transition-colors">Kelola identitas brand Zhuxin Florist Anda.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Profile Photo */}
         <div className="lg:col-span-1">
-          <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm flex flex-col items-center text-center">
+          <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm flex flex-col items-center text-center transition-colors">
             <div className="relative group cursor-pointer mb-6">
-              <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-rose-50 shadow-xl bg-slate-50 flex items-center justify-center">
+              <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-rose-50 shadow-xl bg-slate-50 flex items-center justify-center transition-colors">
                 {logoBase64 ? (
                   <img src={logoBase64} alt="Logo Toko" className="w-full h-full object-cover" />
                 ) : (
@@ -176,17 +176,17 @@ export const Settings: React.FC = () => {
                 <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
               </label>
             </div>
-            <h3 className="font-black text-slate-900 text-lg">{namaToko || 'Zhuxin Florist'}</h3>
-            <p className="text-xs font-black text-rose-600 uppercase tracking-widest mt-1">Admin Utama</p>
+            <h3 className="font-black text-slate-900 text-lg transition-colors">{namaToko || 'Zhuxin Florist'}</h3>
+            <p className="text-xs font-black text-rose-600 uppercase tracking-widest mt-1 transition-colors">Admin Utama</p>
           </div>
         </div>
 
         {/* Right: Form */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-8">
+          <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-8 transition-colors">
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
                   <Store className="w-4 h-4" />
                   Nama Toko / Brand
                 </label>
@@ -195,13 +195,13 @@ export const Settings: React.FC = () => {
                   value={namaToko}
                   onChange={(e) => setNamaToko(e.target.value)}
                   placeholder="Masukkan nama toko Anda..."
-                  className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                  className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
                     <Phone className="w-4 h-4" />
                     Telepon Toko
                   </label>
@@ -210,11 +210,11 @@ export const Settings: React.FC = () => {
                     value={telepon}
                     onChange={(e) => setTelepon(e.target.value)}
                     placeholder="0812..."
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     WhatsApp Order
                   </label>
@@ -223,14 +223,14 @@ export const Settings: React.FC = () => {
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     placeholder="0812..."
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
                     <User className="w-4 h-4" />
                     Instagram
                   </label>
@@ -239,11 +239,11 @@ export const Settings: React.FC = () => {
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                     placeholder="@username"
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
                     <User className="w-4 h-4 opacity-0" /> {/* Spacer */}
                     Email Toko
                   </label>
@@ -252,13 +252,13 @@ export const Settings: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="toko@email.com"
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
                   <AlertCircle className="w-4 h-4" />
                   Alamat Lengkap
                 </label>
@@ -267,11 +267,11 @@ export const Settings: React.FC = () => {
                   onChange={(e) => setAlamat(e.target.value)}
                   placeholder="Jl. Bunga Melati No. 123..."
                   rows={3}
-                  className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 resize-none"
+                  className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 resize-none placeholder:text-slate-400"
                 />
               </div>
 
-              <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 flex gap-4">
+              <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 flex gap-4 transition-colors">
                 <AlertCircle className="w-6 h-6 text-amber-600 shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-amber-900">Informasi Penting</p>
@@ -282,7 +282,7 @@ export const Settings: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
+            <div className="pt-6 border-t border-slate-110 flex items-center justify-between gap-4 transition-colors">
               <AnimatePresence>
                 {showSuccess && (
                   <motion.div 
@@ -301,7 +301,7 @@ export const Settings: React.FC = () => {
                 onClick={handleSave}
                 disabled={isSaving || !namaToko}
                 className={cn(
-                  "ml-auto flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black transition-all active:scale-95 shadow-xl shadow-slate-200 disabled:opacity-50",
+                  "ml-auto flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black transition-all active:scale-95 shadow-xl shadow-slate-200 disabled:opacity-50 transition-colors",
                   isSaving && "animate-pulse"
                 )}
               >
@@ -318,23 +318,23 @@ export const Settings: React.FC = () => {
           {/* Portability & Danger Zone */}
           <div className="space-y-6">
             {/* Export/Import Section */}
-            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-6">
+            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-6 transition-colors">
               <div className="flex items-center gap-3 text-slate-900">
                 <RefreshCw className="w-6 h-6 text-rose-600" />
-                <h3 className="font-black text-lg">Portabilitas Data</h3>
+                <h3 className="font-black text-lg transition-colors">Portabilitas Data</h3>
               </div>
-              <p className="text-sm text-slate-500 font-medium">
+              <p className="text-sm text-slate-500 font-medium transition-colors">
                 Ekspor data Anda ke file JSON untuk dipindahkan ke laptop lain atau sebagai cadangan. Semua gambar produk akan ikut tersimpan.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button 
                   onClick={handleExport}
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all border border-rose-100"
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all border border-rose-100 transition-colors"
                 >
                   <Download className="w-4 h-4" />
                   Ekspor Data (.json)
                 </button>
-                <label className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-100 cursor-pointer">
+                <label className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-100 cursor-pointer transition-colors">
                   <Upload className="w-4 h-4" />
                   Impor Data (.json)
                   <input type="file" accept=".json" onChange={handleImport} className="hidden" />
@@ -343,17 +343,17 @@ export const Settings: React.FC = () => {
             </div>
 
             {/* Danger Zone */}
-            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-red-100 shadow-sm space-y-6">
+            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-red-100 shadow-sm space-y-6 transition-colors">
               <div className="flex items-center gap-3 text-red-600">
                 <Trash2 className="w-6 h-6" />
                 <h3 className="font-black text-lg">Zona Bahaya</h3>
               </div>
-              <p className="text-sm text-slate-500 font-medium">
+              <p className="text-sm text-slate-500 font-medium transition-colors">
                 Jika produk atau gambar tidak muncul, Anda dapat mereset database ke pengaturan awal. Semua data transaksi akan ikut terhapus.
               </p>
               <button 
                 onClick={handleResetDatabase}
-                className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100"
+                className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100 transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reset Semua Data & Gambar

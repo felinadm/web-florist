@@ -155,8 +155,8 @@ export const ProductManagement: React.FC = () => {
       {/* Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-900">Kelola Produk</h2>
-          <p className="text-slate-500 text-sm">Atur inventaris UMKM Anda dengan mudah</p>
+          <h2 className="text-2xl font-black text-slate-900 transition-colors">Kelola Produk</h2>
+          <p className="text-slate-500 text-sm transition-colors">Atur inventaris UMKM Anda dengan mudah</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative flex-1 md:w-64">
@@ -166,7 +166,7 @@ export const ProductManagement: React.FC = () => {
               placeholder="Cari bunga..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-sm text-slate-900 placeholder:text-slate-400"
             />
           </div>
           <button 
@@ -180,11 +180,11 @@ export const ProductManagement: React.FC = () => {
       </div>
 
       {/* Table Area */}
-      <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
+              <tr className="bg-slate-50/50 border-b border-slate-100 transition-colors">
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Produk</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Kategori</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Harga</th>
@@ -238,20 +238,20 @@ export const ProductManagement: React.FC = () => {
                             </div>
                           )}
                         </div>
-                        <span className="font-bold text-slate-800 truncate max-w-[200px]">{product.name}</span>
+                        <span className="font-bold text-slate-800 truncate max-w-[200px] transition-colors">{product.name}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
+                      <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg transition-colors">
                         {product.category}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-black text-slate-900">{formatCurrency(product.price)}</span>
+                      <span className="font-black text-slate-900 transition-colors">{formatCurrency(product.price)}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm font-bold text-slate-700">{product.stock} Unit</span>
+                        <span className="text-sm font-bold text-slate-700 transition-colors">{product.stock} Unit</span>
                         {getStockBadge(product.stock)}
                       </div>
                     </td>
@@ -280,12 +280,12 @@ export const ProductManagement: React.FC = () => {
                 <tr>
                   <td colSpan={5} className="py-20 text-center">
                     <div className="max-w-xs mx-auto space-y-4">
-                      <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto">
-                        <Package className="w-10 h-10 text-slate-200" />
+                      <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto transition-colors">
+                        <Package className="w-10 h-10 text-slate-200 transition-colors" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-slate-800">Belum ada produk</h4>
-                        <p className="text-sm text-slate-400">Mulai tambahkan produk pertama Anda untuk berjualan.</p>
+                        <h4 className="font-bold text-slate-800 transition-colors">Belum ada produk</h4>
+                        <p className="text-sm text-slate-400 transition-colors">Mulai tambahkan produk pertama Anda untuk berjualan.</p>
                       </div>
                       <button 
                         onClick={() => openModal()}
@@ -317,15 +317,15 @@ export const ProductManagement: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden transition-colors"
             >
               <div className="p-8">
                 <div className="flex items-center justify-between mb-8">
                   <div>
-                    <h3 className="text-2xl font-black text-slate-900">
+                    <h3 className="text-2xl font-black text-slate-900 transition-colors">
                       {editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}
                     </h3>
-                    <p className="text-slate-500 text-sm">Lengkapi detail informasi produk di bawah ini</p>
+                    <p className="text-slate-500 text-sm transition-colors">Lengkapi detail informasi produk di bawah ini</p>
                   </div>
                   <button 
                     onClick={closeModal}
@@ -374,20 +374,20 @@ export const ProductManagement: React.FC = () => {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Nama Produk</label>
+                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Nama Produk</label>
                       <input 
                         required
                         type="text" 
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                         placeholder="Contoh: Buket Mawar Merah"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Harga (Rp)</label>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Harga (Rp)</label>
                         <div className="relative">
                           <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
                           <input 
@@ -398,13 +398,13 @@ export const ProductManagement: React.FC = () => {
                               const val = parseNumber(e.target.value);
                               setFormData({...formData, price: formatNumber(val)});
                             }}
-                            className="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                            className="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                             placeholder="0"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Stok</label>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Stok</label>
                         <input 
                           required
                           type="text" 
@@ -413,18 +413,18 @@ export const ProductManagement: React.FC = () => {
                             const val = parseNumber(e.target.value);
                             setFormData({...formData, stock: val === 0 ? '' : formatNumber(val)});
                           }}
-                          className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                          className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                           placeholder="0"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Kategori</label>
+                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Kategori</label>
                       <select 
                         value={formData.category}
                         onChange={(e) => setFormData({...formData, category: e.target.value})}
-                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 appearance-none"
+                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 appearance-none transition-colors"
                       >
                         <option value="Buket">Buket</option>
                         <option value="Satuan">Satuan</option>
@@ -478,19 +478,19 @@ export const ProductManagement: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-sm bg-white rounded-[40px] shadow-2xl p-8 text-center"
+              className="relative w-full max-w-sm bg-white rounded-[40px] shadow-2xl p-8 text-center transition-colors"
             >
               <div className="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
                 <Trash2 className="w-10 h-10" />
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">Hapus Produk?</h3>
-              <p className="text-slate-500 text-sm mb-8">
+              <h3 className="text-xl font-black text-slate-900 mb-2 transition-colors">Hapus Produk?</h3>
+              <p className="text-slate-500 text-sm mb-8 transition-colors">
                 Apakah Anda yakin ingin menghapus <span className="font-bold text-slate-800">"{productToDelete.name}"</span>? Tindakan ini tidak dapat dibatalkan.
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button 
                   onClick={() => setProductToDelete(null)}
-                  className="py-4 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all active:scale-95"
+                  className="py-4 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all active:scale-95 transition-colors"
                 >
                   BATAL
                 </button>
@@ -501,7 +501,7 @@ export const ProductManagement: React.FC = () => {
                       setProductToDelete(null);
                     }
                   }}
-                  className="py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-200"
+                  className="py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-200 transition-colors"
                 >
                   HAPUS
                 </button>

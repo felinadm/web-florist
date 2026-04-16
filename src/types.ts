@@ -33,4 +33,4 @@ export interface ShopSettings {
   email?: string;
 }
 
-export type View = 'dashboard' | 'products' | 'pos' | 'history' | 'settings' | 'customer' | 'login';
+export type View = 'dashboard' | 'products' | 'pos' | 'history' | 'settings' | 'reports' | 'customer' | 'login';

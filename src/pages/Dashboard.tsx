@@ -72,8 +72,8 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-black text-slate-900">Dashboard</h2>
-        <p className="text-slate-500 font-medium">Pantau performa toko bunga Anda hari ini.</p>
+        <h2 className="text-2xl font-black text-slate-900 transition-colors">Dashboard</h2>
+        <p className="text-slate-500 font-medium transition-colors">Pantau performa toko bunga Anda hari ini.</p>
       </div>
 
       {/* Stats Grid */}
@@ -108,27 +108,27 @@ export const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Transactions */}
-        <div className="lg:col-span-2 bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="lg:col-span-2 bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden transition-colors">
+          <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 transition-colors">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center">
                 <HistoryIcon className="w-5 h-5" />
               </div>
-              <h3 className="font-black text-slate-800">Transaksi Terbaru</h3>
+              <h3 className="font-black text-slate-800 uppercase tracking-tight">Transaksi Terbaru</h3>
             </div>
             <button className="text-sm text-rose-600 font-black hover:underline tracking-tight">Lihat Semua</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-white">
+                <tr className="bg-white transition-colors">
                   <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Transaksi</th>
                   <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu</th>
                   <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode</th>
                   <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 transition-colors">
                 {stats.recentTransactions.length > 0 ? stats.recentTransactions.map((tx) => (
                   <tr key={tx.id} className="hover:bg-rose-50/30 transition-colors group">
                     <td className="px-8 py-5 text-sm font-bold text-slate-900">#{tx.id.slice(-6)}</td>
@@ -159,7 +159,7 @@ export const Dashboard: React.FC = () => {
 
         {/* Quick Tips */}
         <div className="space-y-6">
-          <div className="bg-gradient-to-br from-rose-600 to-pink-600 rounded-[40px] p-8 text-white shadow-2xl shadow-rose-200 relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-rose-600 to-pink-600 rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden group">
             <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
             <h3 className="font-black text-xl mb-3 relative z-10">Tips Florist</h3>
             <p className="text-rose-100 text-sm leading-relaxed font-medium relative z-10">
@@ -170,24 +170,24 @@ export const Dashboard: React.FC = () => {
             </button>
           </div>
 
-          <div className="bg-white rounded-[40px] border border-slate-200 p-8 shadow-sm">
-            <h3 className="font-black text-slate-800 mb-6 flex items-center gap-2">
+          <div className="bg-white rounded-[40px] border border-slate-200 p-8 shadow-sm transition-colors">
+            <h3 className="font-black text-slate-800 mb-6 flex items-center gap-2 transition-colors">
               <span className="w-2 h-6 bg-rose-500 rounded-full" />
               Status Sistem
             </h3>
             <div className="space-y-5">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-slate-500">Database Lokal</span>
-                <span className="flex items-center text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-widest">
+                <span className="text-sm font-bold text-slate-500 transition-colors">Database Lokal</span>
+                <span className="flex items-center text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-widest transition-colors">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 animate-pulse" />
                   Online
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-slate-500">Penyimpanan</span>
+                <span className="text-sm font-bold text-slate-500 transition-colors">Penyimpanan</span>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">98% Tersedia</span>
-                  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest transition-colors">98% Tersedia</span>
+                  <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden transition-colors">
                     <div className="w-[98%] h-full bg-rose-500 rounded-full" />
                   </div>
                 </div>

@@ -154,7 +154,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9FA] font-sans text-slate-900 pb-24 relative">
+    <div className="min-h-screen bg-[#FFF9FA] font-sans text-slate-900 pb-24 relative transition-colors duration-300">
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div 
@@ -189,7 +189,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
       </div>
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-rose-100 px-4 py-4 lg:px-8">
+      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-rose-100 px-4 py-4 lg:px-8 transition-colors duration-300">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-rose-600 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200">
@@ -224,6 +224,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                 Login Admin
               </button>
             )}
+
             <button 
               onClick={() => setIsCartOpen(true)}
               className="relative p-3 bg-white border border-rose-100 rounded-2xl text-rose-600 shadow-sm hover:shadow-md transition-all active:scale-95"
@@ -321,25 +322,31 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
             </div>
 
             {/* Categories */}
-            <div className="flex items-center gap-4 overflow-x-auto pb-6 no-scrollbar">
-              {categories.map((cat, idx) => (
-                <motion.button
-                  key={cat}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={cn(
-                    "px-8 py-4 rounded-[24px] font-black text-sm whitespace-nowrap transition-all border-2 flex items-center gap-2",
-                    selectedCategory === cat 
-                      ? "bg-rose-600 border-rose-600 text-white shadow-xl shadow-rose-200 scale-105" 
-                      : "bg-white border-rose-50 text-slate-500 hover:border-rose-200 hover:bg-rose-50/30"
-                  )}
-                >
-                  {cat === 'Semua' ? <Sparkles className="w-4 h-4" /> : <Flower2 className="w-4 h-4" />}
-                  {cat}
-                </motion.button>
-              ))}
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em]">Katalog Koleksi</h3>
+                <div className="h-[1px] flex-1 bg-rose-100/50 ml-8"></div>
+              </div>
+              <div className="flex items-center gap-3 overflow-x-auto pb-6 no-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0">
+                {categories.map((cat, idx) => (
+                  <motion.button
+                    key={cat}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={cn(
+                      "px-8 py-4 rounded-[26px] font-black text-xs whitespace-nowrap transition-all border-2 flex items-center gap-2.5",
+                      selectedCategory === cat 
+                        ? "bg-slate-900 border-slate-900 text-white shadow-2xl shadow-slate-200 scale-105" 
+                        : "bg-white border-rose-50 text-slate-400 hover:border-rose-200 hover:text-rose-500 hover:bg-rose-50"
+                    )}
+                  >
+                    {cat === 'Semua' ? <Sparkles className="w-4 h-4" /> : <Flower2 className="w-4 h-4" />}
+                    {cat}
+                  </motion.button>
+                ))}
+              </div>
             </div>
 
             {/* Product Grid */}
@@ -461,7 +468,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               Kembali Belanja
             </button>
 
-            <div className="bg-white rounded-[40px] border border-rose-100 shadow-xl overflow-hidden">
+            <div className="bg-white rounded-[40px] border border-rose-100 shadow-xl overflow-hidden transition-colors">
               <div className="p-8 border-b border-rose-50 bg-rose-50/30">
                 <h2 className="text-2xl font-black text-slate-900">Ringkasan Pesanan</h2>
                 <p className="text-slate-500 text-sm">Selesaikan pembayaran Anda untuk memproses pesanan.</p>
@@ -563,7 +570,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               <p className="text-slate-500 font-medium">Terima kasih telah berbelanja di {shopSettings?.namaToko || 'Zhuxin Florist'}.</p>
             </div>
 
-            <div className="bg-white p-8 rounded-[40px] border border-rose-100 shadow-xl space-y-6 text-left relative overflow-hidden">
+            <div className="bg-white p-8 rounded-[40px] border border-rose-100 shadow-xl space-y-6 text-left relative overflow-hidden transition-colors">
               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full -mr-16 -mt-16 opacity-50" />
               
               <div className="relative space-y-4">
@@ -608,7 +615,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-rose-100 pt-16 pb-8 px-4 lg:px-8 mt-16">
+      <footer className="bg-white border-t border-rose-100 pt-16 pb-8 px-4 lg:px-8 mt-16 transition-colors">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Info */}
           <div className="space-y-6">
@@ -660,7 +667,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-rose-500 shrink-0" />
                 <span className="text-sm font-bold text-slate-600">
-                  {shopSettings?.telepon || '0812-3456-7890'}
+                  {shopSettings?.telepon || '+62 8974220209'}
                 </span>
               </li>
               <li className="flex items-center gap-3">
@@ -680,7 +687,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               <input 
                 type="email" 
                 placeholder="Email Anda..." 
-                className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-sm font-bold"
+                className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all text-sm font-bold text-slate-800 placeholder:text-slate-400"
               />
               <button className="w-full py-3 bg-rose-600 text-white font-black rounded-2xl hover:shadow-lg hover:shadow-rose-200 transition-all">
                 DAFTAR SEKARANG
@@ -732,7 +739,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[60] shadow-2xl flex flex-col"
+              className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[60] shadow-2xl flex flex-col transition-colors"
             >
               <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                 <div>
@@ -796,7 +803,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                 )}
               </div>
 
-              <div className="p-8 bg-slate-50 border-t border-slate-100 space-y-6">
+              <div className="p-8 bg-slate-50 border-t border-slate-100 space-y-6 transition-colors">
                 <div className="flex justify-between items-end">
                   <div>
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total Belanja</p>

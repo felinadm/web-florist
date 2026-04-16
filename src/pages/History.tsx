@@ -3,7 +3,7 @@ import { Search, Calendar, Download, Eye, FileText, Flower2, ShoppingBag, X } fr
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/dexieDb';
 import { Transaction } from '../types';
-import { formatCurrency, cn } from '../lib/utils';
+import { formatCurrency, cn, exportToCSV } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const History: React.FC = () => {
@@ -21,12 +21,24 @@ export const History: React.FC = () => {
     [searchTerm]
   );
 
+  const handleExport = () => {
+    if (!transactions) return;
+    const exportData = transactions.map(tx => ({
+      ID: tx.id,
+      Tanggal: new Date(tx.tanggal).toLocaleString(),
+      Metode: tx.metodePembayaran,
+      Total: tx.totalHarga,
+      Item: tx.itemDibeli.map(i => `${i.name} (${i.jumlah})`).join('; ')
+    }));
+    exportToCSV(exportData, `Laporan-Transaksi-${new Date().toISOString().split('T')[0]}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-black text-slate-900">Riwayat Pesanan</h2>
-        <p className="text-slate-500 font-medium">Daftar semua transaksi bunga yang telah diproses.</p>
+        <h2 className="text-2xl font-black text-slate-900 transition-colors">Riwayat Pesanan</h2>
+        <p className="text-slate-500 font-medium transition-colors">Daftar semua transaksi bunga yang telah diproses.</p>
       </div>
 
       {/* Filters */}
@@ -38,7 +50,7 @@ export const History: React.FC = () => {
             placeholder="Cari ID transaksi atau metode..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all shadow-sm font-medium"
+            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all shadow-sm font-medium text-slate-900 placeholder:text-slate-400"
           />
         </div>
         <div className="flex items-center gap-3">
@@ -46,7 +58,10 @@ export const History: React.FC = () => {
             <Calendar className="w-4 h-4" />
             <span className="text-sm">Pilih Tanggal</span>
           </button>
-          <button className="flex items-center gap-2 px-5 py-3 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95">
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 px-5 py-3 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95"
+          >
             <Download className="w-4 h-4" />
             <span className="text-sm">Ekspor Laporan</span>
           </button>
@@ -54,11 +69,11 @@ export const History: React.FC = () => {
       </div>
 
       {/* Transactions List */}
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
+              <tr className="bg-slate-50/50 border-b border-slate-100 transition-colors">
                 <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaksi</th>
                 <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu & Tanggal</th>
                 <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode</th>
@@ -82,22 +97,22 @@ export const History: React.FC = () => {
                         <FileText className="w-6 h-6" />
                       </div>
                       <div>
-                        <p className="text-sm font-black text-slate-900">#{tx.id.slice(-8)}</p>
-                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Sukses</p>
+                        <p className="text-sm font-black text-slate-900 transition-colors">#{tx.id.slice(-8)}</p>
+                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest transition-colors">Sukses</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-8 py-5">
-                    <p className="text-sm text-slate-700 font-bold">
+                    <p className="text-sm text-slate-700 font-bold transition-colors">
                       {new Date(tx.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest transition-colors">
                       {new Date(tx.tanggal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </td>
                   <td className="px-8 py-5">
                     <span className={cn(
-                      "inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
+                      "inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors",
                       tx.metodePembayaran === 'cash' ? "bg-emerald-50 text-emerald-700" :
                       tx.metodePembayaran === 'qris' ? "bg-purple-50 text-purple-700" : "bg-rose-50 text-rose-700"
                     )}>
@@ -105,15 +120,15 @@ export const History: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-8 py-5">
-                    <p className="text-sm text-slate-600 font-bold">{tx.itemDibeli.length} Produk</p>
+                    <p className="text-sm text-slate-600 font-bold transition-colors">{tx.itemDibeli.length} Produk</p>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <p className="text-sm font-black text-rose-600">{formatCurrency(tx.totalHarga)}</p>
+                    <p className="text-sm font-black text-rose-600 transition-colors">{formatCurrency(tx.totalHarga)}</p>
                   </td>
                   <td className="px-8 py-5 text-right">
                     <button 
                       onClick={() => setSelectedTx(tx)}
-                      className="p-3 hover:bg-rose-100 rounded-2xl text-slate-400 hover:text-rose-600 transition-all active:scale-90"
+                      className="p-3 hover:bg-rose-100 rounded-2xl text-slate-400 hover:text-rose-600 transition-all active:scale-90 transition-colors"
                     >
                       <Eye className="w-5 h-5" />
                     </button>
@@ -150,14 +165,14 @@ export const History: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[48px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-white rounded-[48px] shadow-2xl overflow-hidden transition-colors duration-300"
             >
               <div className="p-10">
                 <div className="text-center mb-10">
-                  <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+                  <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner transition-colors">
                     <Flower2 className="w-10 h-10" />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900">Detail Transaksi</h3>
+                  <h3 className="text-2xl font-black text-slate-900 transition-colors">Detail Transaksi</h3>
                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">ID: #{selectedTx.id}</p>
                 </div>
 
@@ -166,33 +181,33 @@ export const History: React.FC = () => {
                     <div key={item.id} className="flex justify-between items-start group">
                       <div className="flex-1">
                         <p className="text-sm font-black text-slate-800 group-hover:text-rose-600 transition-colors">{item.name}</p>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.jumlah} x {formatCurrency(item.price)}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest transition-colors">{item.jumlah} x {formatCurrency(item.price)}</p>
                       </div>
-                      <p className="text-sm font-black text-slate-900">{formatCurrency(item.price * item.jumlah)}</p>
+                      <p className="text-sm font-black text-slate-900 transition-colors">{formatCurrency(item.price * item.jumlah)}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="pt-8 border-t border-dashed border-slate-200 space-y-4">
-                  <div className="flex justify-between text-xs font-black text-slate-400 uppercase tracking-widest">
+                <div className="pt-8 border-t border-dashed border-slate-200 space-y-4 transition-colors">
+                  <div className="flex justify-between text-xs font-black text-slate-400 uppercase tracking-widest transition-colors">
                     <span>Metode Pembayaran</span>
                     <span className="text-rose-600">{selectedTx.metodePembayaran}</span>
                   </div>
-                  <div className="flex justify-between text-xs font-black text-slate-400 uppercase tracking-widest">
+                  <div className="flex justify-between text-xs font-black text-slate-400 uppercase tracking-widest transition-colors">
                     <span>Waktu Transaksi</span>
-                    <span className="text-slate-800">
+                    <span className="text-slate-800 transition-colors">
                       {new Date(selectedTx.tanggal).toLocaleString('id-ID')}
                     </span>
                   </div>
-                  <div className="flex justify-between text-2xl font-black text-slate-900 pt-6 border-t border-slate-100">
+                  <div className="flex justify-between text-2xl font-black text-slate-900 pt-6 border-t border-slate-100 transition-colors">
                     <span>Total</span>
-                    <span className="text-rose-600">{formatCurrency(selectedTx.totalHarga)}</span>
+                    <span className="text-rose-600 transition-colors">{formatCurrency(selectedTx.totalHarga)}</span>
                   </div>
                 </div>
 
                 <button 
                   onClick={() => setSelectedTx(null)}
-                  className="w-full mt-10 py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-xl"
+                  className="w-full mt-10 py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-xl transition-colors"
                 >
                   TUTUP DETAIL
                 </button>

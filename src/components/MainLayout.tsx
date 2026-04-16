@@ -11,7 +11,8 @@ import {
   Search, 
   User,
   LogOut,
-  Settings
+  Settings,
+  BarChart3
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { View } from '../types';
@@ -37,15 +38,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
     { id: 'products', label: 'Kelola Produk', icon: Package },
     { id: 'pos', label: 'Kasir / PoS', icon: ShoppingCart },
     { id: 'history', label: 'Riwayat', icon: History },
+    { id: 'reports', label: 'Laporan', icon: BarChart3 },
     { id: 'settings', label: 'Pengaturan', icon: Settings },
   ] as const;
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-slate-900 text-slate-300">
+    <div className="flex flex-col h-full bg-white text-slate-600">
       {/* Logo Section */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
-        <Flower2 className="w-8 h-8 text-rose-400 shrink-0" />
-        <span className="ml-3 font-bold text-white text-lg tracking-tight truncate">
+      <div className="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
+        <Flower2 className="w-8 h-8 text-rose-600 shrink-0" />
+        <span className="ml-3 font-bold text-slate-900 text-lg tracking-tight truncate">
           {shopSettings?.namaToko || 'Zhuxin Florist'}
         </span>
       </div>
@@ -66,13 +68,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
               className={cn(
                 "w-full flex items-center p-3 rounded-xl transition-all duration-200 group",
                 isActive 
-                  ? "bg-rose-600 text-white shadow-lg shadow-rose-900/20" 
-                  : "hover:bg-slate-800 hover:text-white"
+                  ? "bg-rose-600 text-white shadow-lg shadow-rose-600/20" 
+                  : "hover:bg-slate-50 hover:text-rose-600"
               )}
             >
               <Icon className={cn(
                 "w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110",
-                isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+                isActive ? "text-white" : "text-slate-400 group-hover:text-rose-600"
               )} />
               <span className="ml-3 font-medium">{item.label}</span>
             </button>
@@ -81,17 +83,17 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
       </nav>
 
       {/* User Profile Section */}
-      <div className="p-4 border-t border-slate-800 shrink-0 space-y-4">
+      <div className="p-4 border-t border-slate-100 shrink-0 space-y-4">
         <button 
           onClick={() => onViewChange('customer')}
-          className="w-full text-center py-2 text-xs font-black text-rose-400 uppercase tracking-widest hover:text-rose-300 transition-colors underline underline-offset-4"
+          className="w-full text-center py-2 text-xs font-black text-rose-600 uppercase tracking-widest hover:text-rose-700 transition-colors underline underline-offset-4"
         >
           Masuk ke Halaman Customer
         </button>
 
         <button 
           onClick={onLogout}
-          className="w-full flex items-center p-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-all group"
+          className="w-full flex items-center p-3 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 transition-all group"
         >
           <LogOut className="w-5 h-5 shrink-0 transition-transform group-hover:translate-x-1" />
           <span className="ml-3 font-bold text-xs uppercase tracking-widest">Logout Admin</span>
@@ -99,7 +101,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
 
         <button 
           onClick={() => onViewChange('settings')}
-          className="w-full flex items-center p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-colors text-left group"
+          className="w-full flex items-center p-2 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-left group"
         >
           <div className="w-9 h-9 rounded-full bg-rose-500 flex items-center justify-center text-white font-bold text-sm shadow-inner overflow-hidden relative">
             <img src={ADMIN_AVATAR} alt="Admin Avatar" className="w-full h-full object-cover" />
@@ -108,8 +110,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
             </div>
           </div>
           <div className="ml-3 overflow-hidden">
-            <p className="text-sm font-semibold text-white truncate">{shopSettings?.namaToko || 'Zhuxin Florist'}</p>
-            <p className="text-xs text-slate-400 truncate">Admin Toko</p>
+            <p className="text-sm font-semibold text-slate-900 truncate">{shopSettings?.namaToko || 'Zhuxin Florist'}</p>
+            <p className="text-xs text-slate-500">Admin Toko</p>
           </div>
         </button>
       </div>
@@ -136,7 +138,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
         
         {/* Drawer Content */}
         <aside className={cn(
-          "absolute top-0 left-0 h-full w-72 bg-slate-900 transition-transform duration-300 ease-in-out shadow-2xl",
+          "absolute top-0 left-0 h-full w-72 bg-white transition-transform duration-300 ease-in-out shadow-2xl",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <SidebarContent />
@@ -154,7 +156,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden relative">
         {/* Header */}
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0 sticky top-0 z-30 w-full">
+        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0 sticky top-0 z-30 w-full transition-colors duration-300">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}

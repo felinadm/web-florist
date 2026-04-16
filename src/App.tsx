@@ -10,6 +10,7 @@ import { ProductManagement } from './pages/ProductManagement';
 import { Kasir } from './pages/Kasir';
 import { History } from './pages/History';
 import { Settings } from './pages/Settings';
+import { Reports } from './pages/Reports';
 import { CustomerDashboard } from './pages/CustomerDashboard';
 import { Login } from './pages/Login';
 import { View, Product } from './types';
@@ -39,14 +40,17 @@ export default function App() {
   useEffect(() => {
     const seedData = async () => {
       const initialProducts: Product[] = [
-        { id: '1', name: 'Buket Soft Flower', price: 150000, stock: 20, category: 'Buket', imageUrl: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000000 },
+        { id: '1', name: 'Buket Mawar Merah Premium', price: 250000, stock: 15, category: 'Buket', imageUrl: 'https://images.unsplash.com/photo-1548610762-7c6abc9d6d6f?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000000 },
         { id: '2', name: 'Bunga Matahari (Sunflower)', price: 45000, stock: 15, category: 'Satuan', imageUrl: 'https://images.unsplash.com/photo-1470509037663-253afd7f0f51?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000001 },
         { id: '3', name: 'Anggrek Bulan Putih', price: 250000, stock: 10, category: 'Tanaman Pot', imageUrl: 'https://images.unsplash.com/photo-1599232458812-5883e7d32e6d?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000002 },
         { id: '4', name: 'Buket Tulip Pastel', price: 350000, stock: 5, category: 'Buket', imageUrl: 'https://images.unsplash.com/photo-1523694576729-dc99e2c01707?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000003 },
         { id: '5', name: 'Bunga Lily Casablanca', price: 85000, stock: 12, category: 'Satuan', imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000004 },
+        { id: '6', name: 'Bunga Papan Ucapan Selamat', price: 750000, stock: 3, category: 'Bunga Papan', imageUrl: 'https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000005 },
+        { id: '7', name: 'Rangkaian Bunga Meja', price: 450000, stock: 8, category: 'Bunga Meja', imageUrl: 'https://images.unsplash.com/photo-1562690868-60bbe7293e94?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000006 },
+        { id: '8', name: 'Buket Hydrangea Biru', price: 275000, stock: 6, category: 'Buket', imageUrl: 'https://images.unsplash.com/photo-1508784411316-02b8cd4d3a3a?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000007 },
       ];
 
-      const SEED_VERSION = 'v50';
+      const SEED_VERSION = 'v52';
       const lastSeed = localStorage.getItem('lastSeedVersion');
       
       if (lastSeed !== SEED_VERSION) {
@@ -107,6 +111,7 @@ export default function App() {
       case 'products': return <ProductManagement />;
       case 'pos': return <Kasir />;
       case 'history': return <History />;
+      case 'reports': return <Reports />;
       case 'settings': return <Settings />;
       default: return <Dashboard />;
     }
@@ -118,6 +123,7 @@ export default function App() {
       case 'products': return 'Koleksi Bunga';
       case 'pos': return 'Kasir Florist';
       case 'history': return 'Riwayat Pesanan';
+      case 'reports': return 'Analisis Laporan';
       case 'settings': return 'Pengaturan Profil';
       default: return 'Dashboard';
     }
