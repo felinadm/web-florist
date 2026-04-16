@@ -89,6 +89,32 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
   const cartTotal = cart.reduce((acc, curr) => acc + (curr.price * curr.jumlah), 0);
   const cartCount = cart.reduce((acc, curr) => acc + curr.jumlah, 0);
 
+  const sendWhatsAppOrder = (transaction: Transaction) => {
+    const waNumber = shopSettings?.whatsapp || shopSettings?.telepon;
+    if (!waNumber) return;
+    
+    // Clean number: remove non-digits and handle leading 0
+    let cleanNumber = waNumber.replace(/\D/g, '');
+    if (cleanNumber.startsWith('0')) {
+      cleanNumber = '62' + cleanNumber.slice(1);
+    }
+    
+    const itemsList = transaction.itemDibeli
+      .map(item => `- ${item.name} (${item.jumlah}x): ${formatCurrency(item.price * item.jumlah)}`)
+      .join('\n');
+      
+    const message = `Halo ${shopSettings?.namaToko || 'Zhuxin Florist'}!\n\n` +
+      `Saya ingin memesan bunga dengan rincian:\n` +
+      `Order ID: #${transaction.id.slice(0, 8)}\n\n` +
+      `*Pesanan:*\n${itemsList}\n\n` +
+      `*Total Bayar:* ${formatCurrency(transaction.totalHarga)}\n` +
+      `*Metode Bayar:* ${transaction.metodePembayaran.toUpperCase()}\n\n` +
+      `Mohon segera dikonfirmasi. Terima kasih!`;
+
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/${cleanNumber}?text=${encodedMessage}`, '_blank');
+  };
+
   const handleCheckout = async () => {
     if (cart.length === 0) return;
 
@@ -108,7 +134,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
         const product = await db.products.get(item.id);
         if (product) {
           await db.products.update(item.id, {
-            stock: product.stock - item.jumlah
+            stock: Math.max(0, product.stock - item.jumlah)
           });
         }
       }
@@ -117,6 +143,11 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
       setCart([]);
       setCheckoutStep('success');
       setIsCartOpen(false);
+      
+      // Send to WhatsApp
+      setTimeout(() => {
+        sendWhatsAppOrder(transaction);
+      }, 500);
     } catch (error) {
       console.error('Checkout failed:', error);
     }

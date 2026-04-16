@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Save, Store, User, CheckCircle2, AlertCircle, RefreshCw, Trash2, Download, Upload } from 'lucide-react';
+import { Camera, Save, Store, User, CheckCircle2, AlertCircle, RefreshCw, Trash2, Download, Upload, Phone } from 'lucide-react';
 import { db } from '../lib/dexieDb';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { motion, AnimatePresence } from 'motion/react';
@@ -202,8 +202,8 @@ export const Settings: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Camera className="w-4 h-4" />
-                    Telepon / WhatsApp
+                    <Phone className="w-4 h-4" />
+                    Telepon Toko
                   </label>
                   <input 
                     type="text" 
@@ -215,6 +215,22 @@ export const Settings: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    WhatsApp Order
+                  </label>
+                  <input 
+                    type="text" 
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    placeholder="0812..."
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <User className="w-4 h-4" />
                     Instagram
                   </label>
@@ -223,6 +239,19 @@ export const Settings: React.FC = () => {
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                     placeholder="@username"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <User className="w-4 h-4 opacity-0" /> {/* Spacer */}
+                    Email Toko
+                  </label>
+                  <input 
+                    type="text" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="toko@email.com"
                     className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
                   />
                 </div>
