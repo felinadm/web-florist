@@ -50,14 +50,12 @@ export default function App() {
       if (count === 0) {
         await db.products.bulkAdd(initialProducts);
       } else {
-        // If products exist but might be missing images from old version, update them
-        const existingProducts = await db.products.toArray();
-        const needsUpdate = existingProducts.some(p => !p.urlGambar);
-        if (needsUpdate) {
-          for (const p of initialProducts) {
-            await db.products.update(p.id, { urlGambar: p.urlGambar });
-          }
+        // Force update the initial 5 products to use the new external URLs
+        // This ensures that even if the user has old broken paths, they get the new images
+        for (const p of initialProducts) {
+          await db.products.update(p.id, { urlGambar: p.urlGambar });
         }
+        console.log('Product images updated to latest external sources');
       }
     };
     seedData();

@@ -26,7 +26,7 @@ interface MainLayoutProps {
   title: string;
 }
 
-const ADMIN_AVATAR = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80";
+const ADMIN_AVATAR = "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=256&q=80";
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, onViewChange, onLogout, title }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
