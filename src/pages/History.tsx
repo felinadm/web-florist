@@ -165,10 +165,10 @@ export const History: React.FC = () => {
                   {selectedTx.itemDibeli.map((item) => (
                     <div key={item.id} className="flex justify-between items-start group">
                       <div className="flex-1">
-                        <p className="text-sm font-black text-slate-800 group-hover:text-rose-600 transition-colors">{item.nama}</p>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.jumlah} x {formatCurrency(item.harga)}</p>
+                        <p className="text-sm font-black text-slate-800 group-hover:text-rose-600 transition-colors">{item.name}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.jumlah} x {formatCurrency(item.price)}</p>
                       </div>
-                      <p className="text-sm font-black text-slate-900">{formatCurrency(item.harga * item.jumlah)}</p>
+                      <p className="text-sm font-black text-slate-900">{formatCurrency(item.price * item.jumlah)}</p>
                     </div>
                   ))}
                 </div>

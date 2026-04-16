@@ -16,7 +16,7 @@ import {
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/dexieDb';
 import { Product } from '../types';
-import { formatCurrency, formatNumber, parseNumber, cn } from '../lib/utils';
+import { formatCurrency, formatNumber, parseNumber, cn, DEFAULT_FLOWER_IMAGE } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const ProductManagement: React.FC = () => {
@@ -30,19 +30,19 @@ export const ProductManagement: React.FC = () => {
 
   // Form State
   const [formData, setFormData] = useState({
-    nama: '',
-    harga: '',
-    stok: '',
-    kategori: 'Umum',
-    gambar: ''
+    name: '',
+    price: '',
+    stock: '',
+    category: 'Umum',
+    image: ''
   });
 
   // Reactive Query with Dexie
   const allProducts = useLiveQuery(() => db.products.toArray());
   
   const products = allProducts?.filter(p => 
-    p.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.kategori.toLowerCase().includes(searchTerm.toLowerCase())
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.category.toLowerCase().includes(searchTerm.toLowerCase())
   ).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
   const isLoading = products === undefined;
@@ -50,9 +50,20 @@ export const ProductManagement: React.FC = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validasi ukuran file (maksimal 2MB)
+      const maxSize = 2 * 1024 * 1024; // 2MB
+      if (file.size > maxSize) {
+        setShowNotification({ 
+          message: 'Ukuran file terlalu besar! Maksimal 2MB agar aplikasi tetap ringan.', 
+          type: 'error' 
+        });
+        setTimeout(() => setShowNotification(null), 3000);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, gambar: reader.result as string }));
+        setFormData(prev => ({ ...prev, image: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
@@ -60,7 +71,7 @@ export const ProductManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nama || !formData.harga || !formData.stok) {
+    if (!formData.name || !formData.price || !formData.stock) {
       setShowNotification({ message: 'Nama, Harga, dan Stok wajib diisi!', type: 'error' });
       setTimeout(() => setShowNotification(null), 3000);
       return;
@@ -70,18 +81,18 @@ export const ProductManagement: React.FC = () => {
     try {
       const productData: Product = {
         id: editingProduct?.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-        nama: formData.nama,
-        harga: parseNumber(formData.harga),
-        stok: parseNumber(formData.stok),
-        kategori: formData.kategori,
-        urlGambar: formData.gambar || undefined,
+        name: formData.name,
+        price: parseNumber(formData.price),
+        stock: parseNumber(formData.stock),
+        category: formData.category,
+        imageUrl: formData.image || undefined,
         createdAt: editingProduct?.createdAt || Date.now()
       };
 
       // Use put for both add and update
       await db.products.put(productData);
 
-      setShowNotification({ message: `Produk "${productData.nama}" berhasil disimpan!`, type: 'success' });
+      setShowNotification({ message: `Produk "${productData.name}" berhasil disimpan!`, type: 'success' });
       setTimeout(() => setShowNotification(null), 3000);
       closeModal();
     } catch (error) {
@@ -97,20 +108,20 @@ export const ProductManagement: React.FC = () => {
     if (product) {
       setEditingProduct(product);
       setFormData({
-        nama: product.nama,
-        harga: formatNumber(product.harga),
-        stok: formatNumber(product.stok),
-        kategori: product.kategori,
-        gambar: product.urlGambar || ''
+        name: product.name,
+        price: formatNumber(product.price),
+        stock: formatNumber(product.stock),
+        category: product.category,
+        image: product.imageUrl || ''
       });
     } else {
       setEditingProduct(null);
       setFormData({
-        nama: '',
-        harga: '',
-        stok: '',
-        kategori: 'Umum',
-        gambar: ''
+        name: '',
+        price: '',
+        stock: '',
+        category: 'Umum',
+        image: ''
       });
     }
     setIsModalOpen(true);
@@ -133,9 +144,9 @@ export const ProductManagement: React.FC = () => {
     }
   };
 
-  const getStockBadge = (stok: number) => {
-    if (stok < 5) return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase">Kritis</span>;
-    if (stok < 10) return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase">Menipis</span>;
+  const getStockBadge = (stock: number) => {
+    if (stock < 5) return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase">Kritis</span>;
+    if (stock < 10) return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase">Menipis</span>;
     return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase">Aman</span>;
   };
 
@@ -210,12 +221,16 @@ export const ProductManagement: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
-                          {product.urlGambar ? (
+                          {product.imageUrl ? (
                             <img 
-                              src={product.urlGambar} 
-                              alt={product.nama} 
+                              key={product.imageUrl}
+                              src={product.imageUrl} 
+                              alt={product.name} 
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                              }}
                             />
                           ) : (
                             <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
@@ -223,21 +238,21 @@ export const ProductManagement: React.FC = () => {
                             </div>
                           )}
                         </div>
-                        <span className="font-bold text-slate-800 truncate max-w-[200px]">{product.nama}</span>
+                        <span className="font-bold text-slate-800 truncate max-w-[200px]">{product.name}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
-                        {product.kategori}
+                        {product.category}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-black text-slate-900">{formatCurrency(product.harga)}</span>
+                      <span className="font-black text-slate-900">{formatCurrency(product.price)}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm font-bold text-slate-700">{product.stok} Unit</span>
-                        {getStockBadge(product.stok)}
+                        <span className="text-sm font-bold text-slate-700">{product.stock} Unit</span>
+                        {getStockBadge(product.stock)}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -327,9 +342,16 @@ export const ProductManagement: React.FC = () => {
                       onClick={() => fileInputRef.current?.click()}
                       className="w-32 h-32 rounded-[32px] border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-rose-400 hover:bg-rose-50 transition-all overflow-hidden group relative"
                     >
-                      {formData.gambar ? (
+                      {formData.image ? (
                         <>
-                          <img src={formData.gambar} className="w-full h-full object-cover" alt="Preview" />
+                          <img 
+                            src={formData.image} 
+                            className="w-full h-full object-cover" 
+                            alt="Preview" 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                            }}
+                          />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                             <Upload className="w-6 h-6 text-white" />
                           </div>
@@ -356,8 +378,8 @@ export const ProductManagement: React.FC = () => {
                       <input 
                         required
                         type="text" 
-                        value={formData.nama}
-                        onChange={(e) => setFormData({...formData, nama: e.target.value})}
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
                         className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
                         placeholder="Contoh: Buket Mawar Merah"
                       />
@@ -371,10 +393,10 @@ export const ProductManagement: React.FC = () => {
                           <input 
                             required
                             type="text" 
-                            value={formData.harga}
+                            value={formData.price}
                             onChange={(e) => {
                               const val = parseNumber(e.target.value);
-                              setFormData({...formData, harga: formatNumber(val)});
+                              setFormData({...formData, price: formatNumber(val)});
                             }}
                             className="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
                             placeholder="0"
@@ -386,10 +408,10 @@ export const ProductManagement: React.FC = () => {
                         <input 
                           required
                           type="text" 
-                          value={formData.stok}
+                          value={formData.stock}
                           onChange={(e) => {
                             const val = parseNumber(e.target.value);
-                            setFormData({...formData, stok: val === 0 ? '' : formatNumber(val)});
+                            setFormData({...formData, stock: val === 0 ? '' : formatNumber(val)});
                           }}
                           className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
                           placeholder="0"
@@ -400,8 +422,8 @@ export const ProductManagement: React.FC = () => {
                     <div>
                       <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Kategori</label>
                       <select 
-                        value={formData.kategori}
-                        onChange={(e) => setFormData({...formData, kategori: e.target.value})}
+                        value={formData.category}
+                        onChange={(e) => setFormData({...formData, category: e.target.value})}
                         className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 appearance-none"
                       >
                         <option value="Buket">Buket</option>
@@ -463,7 +485,7 @@ export const ProductManagement: React.FC = () => {
               </div>
               <h3 className="text-xl font-black text-slate-900 mb-2">Hapus Produk?</h3>
               <p className="text-slate-500 text-sm mb-8">
-                Apakah Anda yakin ingin menghapus <span className="font-bold text-slate-800">"{productToDelete.nama}"</span>? Tindakan ini tidak dapat dibatalkan.
+                Apakah Anda yakin ingin menghapus <span className="font-bold text-slate-800">"{productToDelete.name}"</span>? Tindakan ini tidak dapat dibatalkan.
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button 

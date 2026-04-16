@@ -19,7 +19,7 @@ import {
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/dexieDb';
 import { Product, CartItem, Transaction } from '../types';
-import { formatCurrency, formatNumber, parseNumber, cn } from '../lib/utils';
+import { formatCurrency, formatNumber, parseNumber, cn, DEFAULT_FLOWER_IMAGE } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Kasir: React.FC = () => {
@@ -38,16 +38,16 @@ export const Kasir: React.FC = () => {
   const allProducts = useLiveQuery(() => db.products.toArray());
   
   const products = allProducts?.filter(p => {
-    const matchesSearch = p.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         p.kategori.toLowerCase().includes(searchTerm.toLowerCase());
-    return p.stok > 0 && matchesSearch;
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         p.category.toLowerCase().includes(searchTerm.toLowerCase());
+    return p.stock > 0 && matchesSearch;
   });
 
   const addToCart = (product: Product) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
-        if (existing.jumlah >= product.stok) return prev;
+        if (existing.jumlah >= product.stock) return prev;
         return prev.map(item => 
           item.id === product.id ? { ...item, jumlah: item.jumlah + 1 } : item
         );
@@ -65,14 +65,14 @@ export const Kasir: React.FC = () => {
       if (item.id === id) {
         const newQty = item.jumlah + delta;
         if (newQty < 1) return item;
-        if (newQty > item.stok) return item;
+        if (newQty > item.stock) return item;
         return { ...item, jumlah: newQty };
       }
       return item;
     }));
   };
 
-  const subtotal = cart.reduce((acc, curr) => acc + (curr.harga * curr.jumlah), 0);
+  const subtotal = cart.reduce((acc, curr) => acc + (curr.price * curr.jumlah), 0);
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + tax;
 
@@ -101,7 +101,7 @@ export const Kasir: React.FC = () => {
         const product = await db.products.get(item.id);
         if (product) {
           await db.products.update(item.id, {
-            stok: product.stok - item.jumlah
+            stock: product.stock - item.jumlah
           });
         }
       }
@@ -160,17 +160,25 @@ export const Kasir: React.FC = () => {
                     className="bg-white p-3 lg:p-4 rounded-2xl border border-slate-200 text-left hover:border-rose-300 hover:shadow-lg transition-all group relative overflow-hidden"
                   >
                     <div className="aspect-square bg-slate-50 rounded-xl mb-2 lg:mb-3 flex items-center justify-center text-slate-300 group-hover:text-rose-200 transition-colors overflow-hidden">
-                      {product.urlGambar ? (
-                        <img src={product.urlGambar} className="w-full h-full object-cover" alt={product.nama} referrerPolicy="no-referrer" />
+                      {product.imageUrl ? (
+                        <img 
+                          src={product.imageUrl} 
+                          className="w-full h-full object-cover" 
+                          alt={product.name} 
+                          referrerPolicy="no-referrer" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                          }}
+                        />
                       ) : (
                         <Flower2 className="w-8 h-8 lg:w-10 h-10" />
                       )}
                     </div>
-                    <h4 className="font-bold text-slate-800 text-xs lg:text-sm truncate mb-0.5 lg:mb-1">{product.nama}</h4>
-                    <p className="text-rose-600 font-black text-sm lg:text-base mb-1 lg:mb-2">{formatCurrency(product.harga)}</p>
+                    <h4 className="font-bold text-slate-800 text-xs lg:text-sm truncate mb-0.5 lg:mb-1">{product.name}</h4>
+                    <p className="text-rose-600 font-black text-sm lg:text-base mb-1 lg:mb-2">{formatCurrency(product.price)}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[60%]">{product.kategori}</span>
-                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Stok: {product.stok}</span>
+                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[60%]">{product.category}</span>
+                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Stok: {product.stock}</span>
                     </div>
                   </motion.button>
                 ))}
@@ -349,14 +357,14 @@ const ReceiptTicket: React.FC<{ transaction: Transaction }> = ({ transaction }) 
       </div>
 
       <div className="border-b border-dashed border-slate-400 pb-2 mb-2 text-[10px]">
-        {transaction.itemDibeli.map((item) => (
+            {transaction.itemDibeli.map((item) => (
           <div key={item.id} className="mb-2">
             <div className="flex justify-between">
-              <span className="flex-1 pr-2">{item.nama}</span>
-              <span>{(item.harga * item.jumlah).toLocaleString()}</span>
+              <span className="flex-1 pr-2">{item.name}</span>
+              <span>{(item.price * item.jumlah).toLocaleString()}</span>
             </div>
             <div className="text-slate-500">
-              {item.jumlah} x {item.harga.toLocaleString()}
+              {item.jumlah} x {item.price.toLocaleString()}
             </div>
           </div>
         ))}
@@ -437,8 +445,16 @@ const CartContent: React.FC<CartContentProps> = ({
             className="flex items-center gap-4 group"
           >
             <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-100">
-              {item.urlGambar ? (
-                <img src={item.urlGambar} className="w-full h-full object-cover" alt={item.nama} />
+              {item.imageUrl ? (
+                <img 
+                  src={item.imageUrl} 
+                  className="w-full h-full object-cover" 
+                  alt={item.name} 
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                  }}
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-slate-300">
                   <Flower2 className="w-6 h-6" />
@@ -446,8 +462,8 @@ const CartContent: React.FC<CartContentProps> = ({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h5 className="font-bold text-slate-800 text-xs lg:text-sm truncate">{item.nama}</h5>
-              <p className="text-[10px] lg:text-xs font-bold text-rose-600">{formatCurrency(item.harga)}</p>
+              <h5 className="font-bold text-slate-800 text-xs lg:text-sm truncate">{item.name}</h5>
+              <p className="text-[10px] lg:text-xs font-bold text-rose-600">{formatCurrency(item.price)}</p>
             </div>
             <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-100">
               <button 

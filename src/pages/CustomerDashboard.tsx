@@ -26,7 +26,7 @@ import {
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/dexieDb';
 import { Product, CartItem, Transaction } from '../types';
-import { formatCurrency, cn } from '../lib/utils';
+import { formatCurrency, cn, DEFAULT_FLOWER_IMAGE } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface CustomerDashboardProps {
@@ -50,22 +50,22 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
     []
   );
 
-  const categories = ['Semua', ...Array.from(new Set(products?.map(p => p.kategori) || []))];
+  const categories = ['Semua', ...Array.from(new Set(products?.map(p => p.category) || []))];
 
   const filteredProducts = products?.filter(p => {
-    const matchesSearch = p.nama.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'Semua' || p.kategori === selectedCategory;
-    return matchesSearch && matchesCategory && p.stok > 0;
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'Semua' || p.category === selectedCategory;
+    return matchesSearch && matchesCategory && p.stock > 0;
   });
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
-        const newQty = Math.min(existing.jumlah + quantity, product.stok);
+        const newQty = Math.min(existing.jumlah + quantity, product.stock);
         return prev.map(item => item.id === product.id ? { ...item, jumlah: newQty } : item);
       }
-      return [...prev, { ...product, jumlah: Math.min(quantity, product.stok) }];
+      return [...prev, { ...product, jumlah: Math.min(quantity, product.stock) }];
     });
     
     setBloomItem(product.id);
@@ -75,7 +75,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
   const updateQuantity = (id: string, delta: number) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
-        const newQty = Math.max(1, Math.min(item.jumlah + delta, item.stok));
+        const newQty = Math.max(1, Math.min(item.jumlah + delta, item.stock));
         return { ...item, jumlah: newQty };
       }
       return item;
@@ -86,7 +86,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
-  const cartTotal = cart.reduce((acc, curr) => acc + (curr.harga * curr.jumlah), 0);
+  const cartTotal = cart.reduce((acc, curr) => acc + (curr.price * curr.jumlah), 0);
   const cartCount = cart.reduce((acc, curr) => acc + curr.jumlah, 0);
 
   const handleCheckout = async () => {
@@ -108,7 +108,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
         const product = await db.products.get(item.id);
         if (product) {
           await db.products.update(item.id, {
-            stok: product.stok - item.jumlah
+            stock: product.stock - item.jumlah
           });
         }
       }
@@ -343,8 +343,17 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                       className="aspect-[4/5] overflow-hidden relative cursor-pointer"
                       onClick={() => setSelectedProduct(product)}
                     >
-                      {product.urlGambar ? (
-                        <img src={product.urlGambar} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={product.nama} referrerPolicy="no-referrer" />
+                      {product.imageUrl ? (
+                        <img 
+                          key={product.imageUrl}
+                          src={product.imageUrl} 
+                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                          alt={product.name} 
+                          referrerPolicy="no-referrer" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                          }}
+                        />
                       ) : (
                         <div className="w-full h-full bg-rose-50 flex items-center justify-center text-rose-200">
                           <Flower2 className="w-20 h-20 animate-sway" />
@@ -353,7 +362,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                       
                       {/* Floating Badges */}
                       <div className="absolute top-4 left-4 flex flex-col gap-2">
-                        {product.stok < 10 && (
+                        {product.stock < 10 && (
                           <span className="px-3 py-1 bg-red-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg">
                             Stok Terbatas
                           </span>
@@ -384,15 +393,15 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                     </div>
                     <div className="p-6 space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black text-rose-300 uppercase tracking-widest">{product.kategori}</span>
+                        <span className="text-[10px] font-black text-rose-300 uppercase tracking-widest">{product.category}</span>
                         <div className="flex items-center gap-1 text-amber-400">
                           <Star className="w-3 h-3 fill-current" />
                           <span className="text-[10px] font-bold text-slate-400">4.9</span>
                         </div>
                       </div>
-                      <h3 className="font-display font-black text-slate-800 text-base lg:text-lg leading-tight group-hover:text-rose-600 transition-colors">{product.nama}</h3>
+                      <h3 className="font-display font-black text-slate-800 text-base lg:text-lg leading-tight group-hover:text-rose-600 transition-colors">{product.name}</h3>
                       <div className="flex items-center justify-between pt-2">
-                        <p className="text-rose-600 font-black text-xl">{formatCurrency(product.harga)}</p>
+                        <p className="text-rose-600 font-black text-xl">{formatCurrency(product.price)}</p>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -432,8 +441,16 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                   {cart.map(item => (
                     <div key={item.id} className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden border border-slate-100">
-                        {item.urlGambar ? (
-                          <img src={item.urlGambar} className="w-full h-full object-cover" alt={item.nama} referrerPolicy="no-referrer" />
+                        {item.imageUrl ? (
+                          <img 
+                            src={item.imageUrl} 
+                            className="w-full h-full object-cover" 
+                            alt={item.name} 
+                            referrerPolicy="no-referrer" 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                            }}
+                          />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-slate-300">
                             <Flower2 className="w-6 h-6" />
@@ -441,10 +458,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                         )}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-bold text-slate-800 text-sm">{item.nama}</h4>
-                        <p className="text-xs text-slate-400">{item.jumlah} x {formatCurrency(item.harga)}</p>
+                        <h4 className="font-bold text-slate-800 text-sm">{item.name}</h4>
+                        <p className="text-xs text-slate-400">{item.jumlah} x {formatCurrency(item.price)}</p>
                       </div>
-                      <span className="font-black text-slate-900">{formatCurrency(item.harga * item.jumlah)}</span>
+                      <span className="font-black text-slate-900">{formatCurrency(item.price * item.jumlah)}</span>
                     </div>
                   ))}
                 </div>
@@ -527,8 +544,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                 <div className="space-y-2">
                   {lastTransaction.itemDibeli.map(item => (
                     <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-slate-600">{item.jumlah}x {item.nama}</span>
-                      <span className="font-bold text-slate-900">{formatCurrency(item.harga * item.jumlah)}</span>
+                      <span className="text-slate-600">{item.jumlah}x {item.name}</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(item.price * item.jumlah)}</span>
                     </div>
                   ))}
                 </div>
@@ -700,8 +717,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                 {cart.length > 0 ? cart.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 group">
                     <div className="w-20 h-20 rounded-2xl bg-slate-50 overflow-hidden flex-shrink-0 border border-slate-100">
-                      {item.urlGambar ? (
-                        <img src={item.urlGambar} className="w-full h-full object-cover" alt={item.nama} referrerPolicy="no-referrer" />
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} className="w-full h-full object-cover" alt={item.name} referrerPolicy="no-referrer" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-300">
                           <Flower2 className="w-8 h-8" />
@@ -709,8 +726,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h5 className="font-black text-slate-800 text-sm truncate">{item.nama}</h5>
-                      <p className="text-xs font-black text-rose-600 mt-1">{formatCurrency(item.harga)}</p>
+                      <h5 className="font-black text-slate-800 text-sm truncate">{item.name}</h5>
+                      <p className="text-xs font-black text-rose-600 mt-1">{formatCurrency(item.price)}</p>
                       
                       <div className="flex items-center gap-3 mt-3">
                         <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-100">
@@ -798,8 +815,17 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               </button>
 
               <div className="w-full md:w-1/2 aspect-square md:aspect-auto relative bg-rose-50">
-                {selectedProduct.urlGambar ? (
-                  <img src={selectedProduct.urlGambar} className="w-full h-full object-cover" alt={selectedProduct.nama} referrerPolicy="no-referrer" />
+                {selectedProduct.imageUrl ? (
+                  <img 
+                    key={selectedProduct.imageUrl}
+                    src={selectedProduct.imageUrl} 
+                    className="w-full h-full object-cover" 
+                    alt={selectedProduct.name} 
+                    referrerPolicy="no-referrer" 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                    }}
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-rose-200">
                     <Flower2 className="w-32 h-32" />
@@ -812,15 +838,15 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <span className="px-4 py-2 bg-rose-50 text-rose-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                        {selectedProduct.kategori}
+                        {selectedProduct.category}
                       </span>
                       <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
                         Tersedia
                       </span>
                     </div>
-                    <h2 className="text-4xl lg:text-5xl font-display font-black text-slate-900 leading-[1.1]">{selectedProduct.nama}</h2>
+                    <h2 className="text-4xl lg:text-5xl font-display font-black text-slate-900 leading-[1.1]">{selectedProduct.name}</h2>
                     <div className="flex items-center gap-6">
-                      <p className="text-4xl font-black text-rose-600">{formatCurrency(selectedProduct.harga)}</p>
+                      <p className="text-4xl font-black text-rose-600">{formatCurrency(selectedProduct.price)}</p>
                       <div className="flex items-center gap-2 text-amber-400 bg-amber-50 px-4 py-2 rounded-2xl">
                         <Star className="w-5 h-5 fill-current" />
                         <span className="text-sm font-black text-amber-700">4.9 (120+ Ulasan)</span>
@@ -834,7 +860,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                       Deskripsi Produk
                     </h4>
                     <p className="text-slate-600 leading-relaxed font-medium text-lg font-serif">
-                      Bunga {selectedProduct.nama} segar pilihan yang dipetik langsung dari kebun kami. Memiliki ketahanan yang luar biasa dan aroma yang sangat menenangkan. Cocok untuk menghiasi ruangan atau sebagai hadiah spesial untuk orang tercinta.
+                      Bunga {selectedProduct.name} segar pilihan yang dipetik langsung dari kebun kami. Memiliki ketahanan yang luar biasa dan aroma yang sangat menenangkan. Cocok untuk menghiasi ruangan atau sebagai hadiah spesial untuk orang tercinta.
                     </p>
                   </div>
 
@@ -844,7 +870,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                     </div>
                     <div>
                       <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Stok Tersedia</p>
-                      <p className="text-sm font-black text-slate-800">{selectedProduct.stok} Unit Ready</p>
+                      <p className="text-sm font-black text-slate-800">{selectedProduct.stock} Unit Ready</p>
                     </div>
                   </div>
                 </div>
@@ -888,8 +914,8 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
             <div className="border-b border-dashed border-slate-400 pb-2">
               {lastTransaction.itemDibeli.map(item => (
                 <div key={item.id} className="flex justify-between py-1">
-                  <span>{item.jumlah}x {item.nama}</span>
-                  <span>{formatCurrency(item.harga * item.jumlah)}</span>
+                  <span>{item.jumlah}x {item.name}</span>
+                  <span>{formatCurrency(item.price * item.jumlah)}</span>
                 </div>
               ))}
             </div>

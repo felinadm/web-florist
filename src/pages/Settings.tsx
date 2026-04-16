@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Save, Store, User, CheckCircle2, AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { Camera, Save, Store, User, CheckCircle2, AlertCircle, RefreshCw, Trash2, Download, Upload } from 'lucide-react';
 import { db } from '../lib/dexieDb';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { motion, AnimatePresence } from 'motion/react';
@@ -81,6 +81,73 @@ export const Settings: React.FC = () => {
         console.error('Failed to reset database:', error);
       }
     }
+  };
+
+  const handleExport = async () => {
+    try {
+      const products = await db.products.toArray();
+      const transactions = await db.transactions.toArray();
+      const settings = await db.settings.toArray();
+      
+      const data = {
+        products,
+        transactions,
+        settings,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `zhuxin-florist-data-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Gagal mengekspor data.');
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!window.confirm('Mengimpor data akan menghapus semua data saat ini dan menggantinya dengan data dari file. Lanjutkan?')) {
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        
+        if (!data.products || !data.transactions) {
+          throw new Error('Format file tidak valid.');
+        }
+
+        await db.transaction('rw', db.products, db.transactions, db.settings, async () => {
+          await db.products.clear();
+          await db.transactions.clear();
+          await db.settings.clear();
+          
+          await db.products.bulkAdd(data.products);
+          await db.transactions.bulkAdd(data.transactions);
+          if (data.settings && data.settings.length > 0) {
+            await db.settings.bulkAdd(data.settings);
+          }
+        });
+
+        alert('Data berhasil diimpor! Aplikasi akan dimuat ulang.');
+        window.location.reload();
+      } catch (error) {
+        console.error('Import failed:', error);
+        alert('Gagal mengimpor data. Pastikan file JSON valid.');
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -219,22 +286,50 @@ export const Settings: React.FC = () => {
             </div>
           </div>
 
-          {/* Danger Zone */}
-          <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-red-100 shadow-sm space-y-6">
-            <div className="flex items-center gap-3 text-red-600">
-              <Trash2 className="w-6 h-6" />
-              <h3 className="font-black text-lg">Zona Bahaya</h3>
+          {/* Portability & Danger Zone */}
+          <div className="space-y-6">
+            {/* Export/Import Section */}
+            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 text-slate-900">
+                <RefreshCw className="w-6 h-6 text-rose-600" />
+                <h3 className="font-black text-lg">Portabilitas Data</h3>
+              </div>
+              <p className="text-sm text-slate-500 font-medium">
+                Ekspor data Anda ke file JSON untuk dipindahkan ke laptop lain atau sebagai cadangan. Semua gambar produk akan ikut tersimpan.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button 
+                  onClick={handleExport}
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all border border-rose-100"
+                >
+                  <Download className="w-4 h-4" />
+                  Ekspor Data (.json)
+                </button>
+                <label className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-100 cursor-pointer">
+                  <Upload className="w-4 h-4" />
+                  Impor Data (.json)
+                  <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+                </label>
+              </div>
             </div>
-            <p className="text-sm text-slate-500 font-medium">
-              Jika produk atau gambar tidak muncul, Anda dapat mereset database ke pengaturan awal. Semua data transaksi akan ikut terhapus.
-            </p>
-            <button 
-              onClick={handleResetDatabase}
-              className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Reset Semua Data & Gambar
-            </button>
+
+            {/* Danger Zone */}
+            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-red-100 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 text-red-600">
+                <Trash2 className="w-6 h-6" />
+                <h3 className="font-black text-lg">Zona Bahaya</h3>
+              </div>
+              <p className="text-sm text-slate-500 font-medium">
+                Jika produk atau gambar tidak muncul, Anda dapat mereset database ke pengaturan awal. Semua data transaksi akan ikut terhapus.
+              </p>
+              <button 
+                onClick={handleResetDatabase}
+                className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Reset Semua Data & Gambar
+              </button>
+            </div>
           </div>
         </div>
       </div>

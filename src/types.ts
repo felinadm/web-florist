@@ -1,10 +1,10 @@
 export interface Product {
   id: string;
-  nama: string;
-  harga: number;
-  stok: number;
-  kategori: string;
-  urlGambar?: string;
+  name: string;
+  price: number;
+  stock: number;
+  category: string;
+  imageUrl?: string;
   createdAt: number;
 }
 

@@ -11,8 +11,8 @@ export const Dashboard: React.FC = () => {
     const transactions = await db.transactions.toArray();
     
     const totalSales = transactions.reduce((acc, curr) => acc + curr.totalHarga, 0);
-    const lowStockCount = products.filter(p => p.stok < 5).length;
-    const activeProducts = products.filter(p => p.stok > 0).length;
+    const lowStockCount = products.filter(p => p.stock < 5).length;
+    const activeProducts = products.filter(p => p.stock > 0).length;
 
     return {
       totalSales,

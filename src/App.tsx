@@ -38,24 +38,23 @@ export default function App() {
 
   useEffect(() => {
     const seedData = async () => {
-      const count = await db.products.count();
       const initialProducts: Product[] = [
-        { id: '1', nama: 'Buket Soft Flower', harga: 150000, stok: 20, kategori: 'Buket', urlGambar: 'https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-        { id: '2', nama: 'Bunga Matahari (Sunflower)', harga: 45000, stok: 15, kategori: 'Satuan', urlGambar: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-        { id: '3', nama: 'Anggrek Bulan Putih', harga: 250000, stok: 10, kategori: 'Tanaman Pot', urlGambar: 'https://images.unsplash.com/photo-1534885391148-4330f5088a53?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-        { id: '4', nama: 'Buket Tulip Pastel', harga: 350000, stok: 5, kategori: 'Buket', urlGambar: 'https://images.unsplash.com/photo-1520323232427-6b6230f72e2c?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
-        { id: '5', nama: 'Bunga Lily Casablanca', harga: 85000, stok: 12, kategori: 'Satuan', urlGambar: 'https://images.unsplash.com/photo-1519152368339-147bbad9969e?auto=format&fit=crop&w=800&q=80', createdAt: Date.now() },
+        { id: '1', name: 'Buket Soft Flower', price: 150000, stock: 20, category: 'Buket', imageUrl: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000000 },
+        { id: '2', name: 'Bunga Matahari (Sunflower)', price: 45000, stock: 15, category: 'Satuan', imageUrl: 'https://images.unsplash.com/photo-1470509037663-253afd7f0f51?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000001 },
+        { id: '3', name: 'Anggrek Bulan Putih', price: 250000, stock: 10, category: 'Tanaman Pot', imageUrl: 'https://images.unsplash.com/photo-1599232458812-5883e7d32e6d?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000002 },
+        { id: '4', name: 'Buket Tulip Pastel', price: 350000, stock: 5, category: 'Buket', imageUrl: 'https://images.unsplash.com/photo-1523694576729-dc99e2c01707?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000003 },
+        { id: '5', name: 'Bunga Lily Casablanca', price: 85000, stock: 12, category: 'Satuan', imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000004 },
       ];
 
-      if (count === 0) {
+      const SEED_VERSION = 'v50';
+      const lastSeed = localStorage.getItem('lastSeedVersion');
+      
+      if (lastSeed !== SEED_VERSION) {
+        // Clear and re-seed to ensure images are updated
+        await db.products.clear();
         await db.products.bulkAdd(initialProducts);
-      } else {
-        // Force update the initial 5 products to use the new external URLs
-        // This ensures that even if the user has old broken paths, they get the new images
-        for (const p of initialProducts) {
-          await db.products.update(p.id, { urlGambar: p.urlGambar });
-        }
-        console.log('Product images updated to latest external sources');
+        localStorage.setItem('lastSeedVersion', SEED_VERSION);
+        console.log(`Database Reset & Seeded to Version ${SEED_VERSION}`);
       }
     };
     seedData();
