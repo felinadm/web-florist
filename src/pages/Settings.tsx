@@ -1,13 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Save, Store, User, CheckCircle2, AlertCircle, RefreshCw, Trash2, Download, Upload, Phone } from 'lucide-react';
+import { 
+  Camera, 
+  Save, 
+  Store, 
+  User, 
+  CheckCircle2, 
+  AlertCircle, 
+  RefreshCw, 
+  Trash2, 
+  Download, 
+  Upload, 
+  Phone, 
+  BarChart3, 
+  X,
+  CreditCard,
+  Database,
+  Settings2,
+  DollarSign,
+  Percent,
+  Mail,
+  MapPin,
+  Instagram
+} from 'lucide-react';
 import { db } from '../lib/dexieDb';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '../lib/utils';
+import { cn, formatNumber, parseNumber } from '../lib/utils';
+import { ShopSettings } from '../types';
+
+type SettingTab = 'profile' | 'finance' | 'system';
 
 export const Settings: React.FC = () => {
   const shopSettings = useLiveQuery(() => db.settings.toCollection().first());
+  const [activeTab, setActiveTab] = useState<SettingTab>('profile');
   
+  // Tab 1: Profile
   const [namaToko, setNamaToko] = useState('');
   const [logoBase64, setLogoBase64] = useState<string | undefined>(undefined);
   const [alamat, setAlamat] = useState('');
@@ -15,8 +42,16 @@ export const Settings: React.FC = () => {
   const [instagram, setInstagram] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [email, setEmail] = useState('');
+
+  // Tab 2: Finance
+  const [marginType, setMarginType] = useState<'percentage' | 'nominal'>('percentage');
+  const [marginValue, setMarginValue] = useState<string>('20');
+  const [ppn, setPpn] = useState<string>('0');
+  const [lowStockThreshold, setLowStockThreshold] = useState<string>('5');
+
+  // Common
   const [isSaving, setIsSaving] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [showNotification, setShowNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   useEffect(() => {
     if (shopSettings) {
@@ -27,6 +62,10 @@ export const Settings: React.FC = () => {
       setInstagram(shopSettings.instagram || '');
       setWhatsapp(shopSettings.whatsapp || '');
       setEmail(shopSettings.email || '');
+      setMarginType(shopSettings.marginType || 'percentage');
+      setMarginValue(String(shopSettings.marginValue || 20));
+      setPpn(String(shopSettings.ppn || 0));
+      setLowStockThreshold(String(shopSettings.lowStockThreshold || 5));
     }
   }, [shopSettings]);
 
@@ -45,26 +84,30 @@ export const Settings: React.FC = () => {
     setIsSaving(true);
     try {
       const existing = await db.settings.toCollection().first();
-      const settingsData = {
+      const settingsData: Partial<ShopSettings> = {
         namaToko,
         logoBase64,
         alamat,
         telepon,
         instagram,
         whatsapp,
-        email
+        email,
+        marginType,
+        marginValue: Number(marginValue) || 0,
+        ppn: Number(ppn) || 0,
+        lowStockThreshold: Number(lowStockThreshold) || 5
       };
-      
-      // Use put to save or update
       if (existing) {
-        await db.settings.put({ ...settingsData, id: existing.id });
+        await db.settings.put({ ...existing, ...settingsData });
       } else {
-        await db.settings.put(settingsData);
+        await db.settings.put(settingsData as ShopSettings);
       }
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setShowNotification({ message: 'Pengaturan berhasil disimpan!', type: 'success' });
+      setTimeout(() => setShowNotification(null), 3000);
     } catch (error) {
       console.error('Failed to save settings:', error);
+      setShowNotification({ message: 'Gagal menyimpan pengaturan.', type: 'error' });
+      setTimeout(() => setShowNotification(null), 3000);
     } finally {
       setIsSaving(false);
     }
@@ -79,7 +122,7 @@ export const Settings: React.FC = () => {
           await db.suppliers.clear();
           await db.purchases.clear();
         });
-        window.location.reload(); // Reload to trigger seedData in App.tsx
+        window.location.reload(); 
       } catch (error) {
         console.error('Failed to reset database:', error);
       }
@@ -101,7 +144,7 @@ export const Settings: React.FC = () => {
         suppliers,
         purchases,
         exportDate: new Date().toISOString(),
-        version: '1.5' // Bumped version for new schema
+        version: '1.6' 
       };
       
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -165,218 +208,428 @@ export const Settings: React.FC = () => {
     reader.readAsText(file);
   };
 
+  const tabs = [
+    { id: 'profile', label: 'Profil Toko', icon: Store },
+    { id: 'finance', label: 'Keuangan & Harga', icon: BarChart3 },
+    { id: 'system', label: 'Sistem & Data', icon: Settings2 },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 pb-20">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-black text-slate-900 transition-colors">Pengaturan Profil</h2>
-        <p className="text-slate-500 font-medium transition-colors">Kelola identitas brand Zhuxin Florist Anda.</p>
+        <h2 className="text-3xl font-black text-slate-900 transition-colors tracking-tight">Pengaturan Aplikasi</h2>
+        <p className="text-slate-500 font-medium transition-colors">Sesuaikan identitas, harga, dan manajemen data Zhuxin Florist.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left: Profile Photo */}
-        <div className="lg:col-span-1">
-          <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm flex flex-col items-center text-center transition-colors">
-            <div className="relative group cursor-pointer mb-6">
-              <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-rose-50 shadow-xl bg-slate-50 flex items-center justify-center transition-colors">
-                {logoBase64 ? (
-                  <img src={logoBase64} alt="Logo Toko" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-16 h-16 text-slate-300" />
-                )}
-              </div>
-              <label className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
-                <Camera className="w-8 h-8 mb-2" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Ubah Foto</span>
-                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-              </label>
-            </div>
-            <h3 className="font-black text-slate-900 text-lg transition-colors">{namaToko || 'Zhuxin Florist'}</h3>
-            <p className="text-xs font-black text-rose-600 uppercase tracking-widest mt-1 transition-colors">Admin Utama</p>
-          </div>
-        </div>
-
-        {/* Right: Form */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-8 transition-colors">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
-                  <Store className="w-4 h-4" />
-                  Nama Toko / Brand
-                </label>
-                <input 
-                  type="text" 
-                  value={namaToko}
-                  onChange={(e) => setNamaToko(e.target.value)}
-                  placeholder="Masukkan nama toko Anda..."
-                  className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
+      {/* Tabs Navigation */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-[28px] border border-slate-200 w-fit">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as SettingTab)}
+              className={cn(
+                "flex items-center gap-2.5 px-6 py-3.5 rounded-[22px] font-black text-xs uppercase tracking-widest transition-all relative overflow-hidden",
+                isActive 
+                  ? "bg-white text-rose-600 shadow-sm border border-rose-100" 
+                  : "text-slate-500 hover:text-rose-500 hover:bg-white/50"
+              )}
+            >
+              <Icon className={cn("w-4 h-4", isActive ? "text-rose-600" : "text-slate-400")} />
+              {tab.label}
+              {isActive && (
+                <motion.div 
+                  layoutId="activeTabGlow"
+                  className="absolute inset-0 bg-rose-500/5 pointer-events-none"
                 />
-              </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
-                    <Phone className="w-4 h-4" />
-                    Telepon Toko
-                  </label>
-                  <input 
-                    type="text" 
-                    value={telepon}
-                    onChange={(e) => setTelepon(e.target.value)}
-                    placeholder="0812..."
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    WhatsApp Order
-                  </label>
-                  <input 
-                    type="text" 
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="0812..."
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
-                    <User className="w-4 h-4" />
-                    Instagram
-                  </label>
-                  <input 
-                    type="text" 
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                    placeholder="@username"
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
-                    <User className="w-4 h-4 opacity-0" /> {/* Spacer */}
-                    Email Toko
-                  </label>
-                  <input 
-                    type="text" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="toko@email.com"
-                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
-                  />
+      <div className="grid grid-cols-1 gap-8">
+        <AnimatePresence mode="wait">
+          {activeTab === 'profile' && (
+            <motion.div
+              key="profile"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            >
+              {/* Profile Card */}
+              <div className="lg:col-span-1">
+                <div className="bg-white p-10 rounded-[40px] border border-slate-200 shadow-sm flex flex-col items-center text-center transition-colors">
+                  <div className="relative group cursor-pointer mb-8">
+                    <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-rose-50 shadow-2xl bg-slate-50 flex items-center justify-center transition-colors">
+                      {logoBase64 ? (
+                        <img src={logoBase64} alt="Logo Toko" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-20 h-20 text-slate-300" />
+                      )}
+                    </div>
+                    <label className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
+                      <Camera className="w-10 h-10 mb-2" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em]">Upload Logo</span>
+                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                    </label>
+                  </div>
+                  <h3 className="font-black text-slate-900 text-xl tracking-tight transition-colors">{namaToko || 'Zhuxin Florist'}</h3>
+                  <p className="text-[10px] font-black text-rose-600 uppercase tracking-[0.3em] mt-2 transition-colors">Profil Bisnis</p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors">
-                  <AlertCircle className="w-4 h-4" />
-                  Alamat Lengkap
-                </label>
-                <textarea 
-                  value={alamat}
-                  onChange={(e) => setAlamat(e.target.value)}
-                  placeholder="Jl. Bunga Melati No. 123..."
-                  rows={3}
-                  className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 resize-none placeholder:text-slate-400"
-                />
-              </div>
+              {/* Profile Form */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-8 transition-colors">
+                  <div className="grid grid-cols-1 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                        <Store className="w-3.5 h-3.5" />
+                        Nama Brand Toko
+                      </label>
+                      <input 
+                        type="text" 
+                        value={namaToko}
+                        onChange={(e) => setNamaToko(e.target.value)}
+                        placeholder="Contoh: Zhuxin Florist Jakarta"
+                        className="w-full px-7 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-300"
+                      />
+                    </div>
 
-              <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 flex gap-4 transition-colors">
-                <AlertCircle className="w-6 h-6 text-amber-600 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-amber-900">Informasi Penting</p>
-                  <p className="text-xs text-amber-700 mt-1 leading-relaxed">
-                    Nama toko ini akan muncul secara otomatis di bagian Header aplikasi dan Struk Belanja pelanggan. Pastikan nama sudah benar sebelum menyimpan.
-                  </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                          <Phone className="w-3.5 h-3.5" />
+                          No. Telepon Aktif
+                        </label>
+                        <div className="relative">
+                          <input 
+                            type="text" 
+                            value={telepon}
+                            onChange={(e) => setTelepon(e.target.value)}
+                            placeholder="08xxxxxxxxxx"
+                            className="w-full px-7 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-300"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Instan WhatsApp
+                        </label>
+                        <input 
+                          type="text" 
+                          value={whatsapp}
+                          onChange={(e) => setWhatsapp(e.target.value)}
+                          placeholder="628xxxxxxxxxx"
+                          className="w-full px-7 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-300"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                          <Instagram className="w-3.5 h-3.5" />
+                          Username Instagram
+                        </label>
+                        <input 
+                          type="text" 
+                          value={instagram}
+                          onChange={(e) => setInstagram(e.target.value)}
+                          placeholder="@zhuxin.florist"
+                          className="w-full px-7 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-300"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                          <Mail className="w-3.5 h-3.5" />
+                          Email Korespondensi
+                        </label>
+                        <input 
+                          type="text" 
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="shop@zhuxin.com"
+                          className="w-full px-7 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-300"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                        <MapPin className="w-3.5 h-3.5" />
+                        Alamat Operasional
+                      </label>
+                      <textarea 
+                        value={alamat}
+                        onChange={(e) => setAlamat(e.target.value)}
+                        placeholder="Jl. Toko Bunga No. 88, Central Jakarta..."
+                        rows={3}
+                        className="w-full px-7 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 resize-none placeholder:text-slate-300"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-8 border-t border-slate-100 flex justify-end">
+                    <button 
+                      onClick={handleSave}
+                      disabled={isSaving || !namaToko}
+                      className={cn(
+                        "flex items-center gap-3 px-10 py-5 bg-slate-900 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-slate-200 disabled:opacity-50",
+                        isSaving && "animate-pulse"
+                      )}
+                    >
+                      <Save className="w-5 h-5" />
+                      {isSaving ? 'Menyimpan...' : 'Simpan Profil'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
+          )}
 
-            <div className="pt-6 border-t border-slate-110 flex items-center justify-between gap-4 transition-colors">
-              <AnimatePresence>
-                {showSuccess && (
-                  <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-widest"
+          {activeTab === 'finance' && (
+            <motion.div
+              key="finance"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-8"
+            >
+              <div className="bg-white p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-10 transition-colors">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                  {/* Margin Section */}
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-200">
+                        <BarChart3 className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-black text-slate-900 text-lg tracking-tight">Strategi Margin Otomatis</h4>
+                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-1">Sistem Perhitungan Harga</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 bg-rose-50/50 p-8 rounded-[32px] border border-rose-100">
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-rose-400 uppercase tracking-widest px-1">Tipe Margin Default</label>
+                        <div className="flex bg-white p-1.5 rounded-[22px] border border-rose-200 shadow-sm">
+                          <button 
+                            onClick={() => setMarginType('percentage')}
+                            className={cn(
+                              "flex-1 py-4 rounded-[18px] text-[10px] font-black transition-all flex items-center justify-center gap-2 tracking-widest",
+                              marginType === 'percentage' ? "bg-rose-600 text-white shadow-xl shadow-rose-200" : "text-rose-300 hover:text-rose-600"
+                            )}
+                          >
+                            <Percent className="w-3.5 h-3.5" />
+                            PERSENTASE (%)
+                          </button>
+                          <button 
+                            onClick={() => setMarginType('nominal')}
+                            className={cn(
+                              "flex-1 py-4 rounded-[18px] text-[10px] font-black transition-all flex items-center justify-center gap-2 tracking-widest",
+                              marginType === 'nominal' ? "bg-rose-600 text-white shadow-xl shadow-rose-200" : "text-rose-300 hover:text-rose-600"
+                            )}
+                          >
+                            <DollarSign className="w-3.5 h-3.5" />
+                            NOMINAL (RP)
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-rose-400 uppercase tracking-widest px-1">Besaran Nilai Margin</label>
+                        <div className="relative">
+                          <input 
+                            type="text" 
+                            value={marginValue}
+                            onChange={(e) => setMarginValue(formatNumber(parseNumber(e.target.value)))}
+                            className="w-full px-8 py-5 bg-white border-2 border-rose-100 rounded-[24px] focus:ring-8 focus:ring-rose-500/5 focus:border-rose-400 outline-none transition-all font-black text-xl text-slate-800"
+                            placeholder="0"
+                          />
+                          <div className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center font-black text-rose-600">
+                            {marginType === 'percentage' ? '%' : 'Rp'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tax Section */}
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-slate-200">
+                        <CreditCard className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-black text-slate-900 text-lg tracking-tight">Kebijakan Pajak & PPN</h4>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pengaturan Transaksi</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 bg-slate-50 p-8 rounded-[32px] border border-slate-100">
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Tarif Pajak (PPN %)</label>
+                        <div className="relative">
+                          <input 
+                            type="text" 
+                            value={ppn}
+                            onChange={(e) => setPpn(formatNumber(parseNumber(e.target.value)))}
+                            className="w-full px-8 py-5 bg-white border-2 border-slate-100 rounded-[24px] focus:ring-8 focus:ring-slate-500/5 focus:border-slate-400 outline-none transition-all font-black text-xl text-slate-800"
+                            placeholder="0"
+                          />
+                          <div className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-black text-slate-600">
+                            %
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Ambang Batas Stok Minimum</label>
+                        <div className="relative">
+                          <input 
+                            type="text" 
+                            value={lowStockThreshold}
+                            onChange={(e) => setLowStockThreshold(formatNumber(parseNumber(e.target.value)))}
+                            className="w-full px-8 py-5 bg-white border-2 border-slate-100 rounded-[24px] focus:ring-8 focus:ring-slate-500/5 focus:border-slate-400 outline-none transition-all font-black text-xl text-slate-800"
+                            placeholder="5"
+                          />
+                          <div className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-black text-slate-600 font-mono">
+                            #
+                          </div>
+                        </div>
+                        <p className="text-[10px] text-slate-400 leading-relaxed font-medium px-1">
+                          Sistem akan memberikan peringatan jika stok produk berada di bawah nilai ini.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-6 bg-amber-50 rounded-3xl border border-amber-100 flex gap-4">
+                      <AlertCircle className="w-6 h-6 text-amber-600 shrink-0" />
+                      <p className="text-xs text-amber-700 font-medium leading-relaxed">
+                        Rumus margin otomatis akan diterapkan seketika pada menu Kelola Produk saat Anda memasukkan Harga Beli.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-10 border-t border-slate-100 flex justify-end">
+                  <button 
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="flex items-center gap-3 px-10 py-5 bg-rose-600 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-xl shadow-rose-100"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
-                    Berhasil Disimpan!
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              <button 
-                onClick={handleSave}
-                disabled={isSaving || !namaToko}
-                className={cn(
-                  "ml-auto flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black transition-all active:scale-95 shadow-xl shadow-slate-200 disabled:opacity-50 transition-colors",
-                  isSaving && "animate-pulse"
-                )}
-              >
-                {isSaving ? 'MENYIMPAN...' : (
-                  <>
                     <Save className="w-5 h-5" />
-                    SIMPAN PERUBAHAN
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+                    {isSaving ? 'Menyimpan...' : 'Simpan Pengaturan Keuangan'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
-          {/* Portability & Danger Zone */}
-          <div className="space-y-6">
-            {/* Export/Import Section */}
-            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-6 transition-colors">
-              <div className="flex items-center gap-3 text-slate-900">
-                <RefreshCw className="w-6 h-6 text-rose-600" />
-                <h3 className="font-black text-lg transition-colors">Portabilitas Data</h3>
-              </div>
-              <p className="text-sm text-slate-500 font-medium transition-colors">
-                Ekspor data Anda ke file JSON untuk dipindahkan ke laptop lain atau sebagai cadangan. Semua gambar produk akan ikut tersimpan.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button 
-                  onClick={handleExport}
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all border border-rose-100 transition-colors"
-                >
-                  <Download className="w-4 h-4" />
-                  Ekspor Data (.json)
-                </button>
-                <label className="flex items-center justify-center gap-2 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-100 cursor-pointer transition-colors">
-                  <Upload className="w-4 h-4" />
-                  Impor Data (.json)
-                  <input type="file" accept=".json" onChange={handleImport} className="hidden" />
-                </label>
-              </div>
-            </div>
+          {activeTab === 'system' && (
+            <motion.div
+              key="system"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-8"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Portability */}
+                <div className="bg-white p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-8 transition-colors flex flex-col">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                      <Database className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-slate-900 text-lg tracking-tight">Manajemen Database</h4>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Ekspor & Impor Data</p>
+                    </div>
+                  </div>
 
-            {/* Danger Zone */}
-            <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-red-100 shadow-sm space-y-6 transition-colors">
-              <div className="flex items-center gap-3 text-red-600">
-                <Trash2 className="w-6 h-6" />
-                <h3 className="font-black text-lg">Zona Bahaya</h3>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                    Amankan data Anda dengan melakukan backup berkala. Anda bisa mengekspor seluruh basis data ke dalam file JSON yang dapat dipulihkan kapan saja.
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-4 mt-auto">
+                    <button 
+                      onClick={handleExport}
+                      className="flex items-center justify-center gap-3 px-8 py-5 bg-emerald-50 text-emerald-600 rounded-[22px] font-black text-xs uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100 shadow-sm"
+                    >
+                      <Download className="w-5 h-5" />
+                      Backup Database (.json)
+                    </button>
+                    <label className="flex items-center justify-center gap-3 px-8 py-5 bg-slate-50 text-slate-600 rounded-[22px] font-black text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-100 cursor-pointer shadow-sm">
+                      <Upload className="w-5 h-5" />
+                      Restore Database (.json)
+                      <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Reset Section */}
+                <div className="bg-white p-10 rounded-[40px] border border-red-100 shadow-sm space-y-8 transition-colors flex flex-col">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-red-200">
+                      <Trash2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-red-900 text-lg tracking-tight text-red-600">Zona Pembersihan</h4>
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1">Data Reset</p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                    Gunakan fitur ini hanya jika Anda ingin memulai dari nol. Tindakan ini akan menghapus seluruh Produk, Supplier, dan Riwayat Penjualan Anda secara permanen.
+                  </p>
+
+                  <button 
+                    onClick={handleResetDatabase}
+                    className="mt-auto flex items-center justify-center gap-3 px-8 py-5 bg-red-50 text-red-600 rounded-[22px] font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100 shadow-sm"
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                    Reset Semua Data (Factory Reset)
+                  </button>
+                </div>
               </div>
-              <p className="text-sm text-slate-500 font-medium transition-colors">
-                Jika produk atau gambar tidak muncul, Anda dapat mereset database ke pengaturan awal. Semua data transaksi akan ikut terhapus.
-              </p>
-              <button 
-                onClick={handleResetDatabase}
-                className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100 transition-colors"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Reset Semua Data & Gambar
-              </button>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+      {/* Global Notification Toast (SweetAlert Style) */}
+      <AnimatePresence>
+        {showNotification && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
+            animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
+            className={cn(
+              "fixed bottom-10 left-1/2 z-[300] px-8 py-4 rounded-[28px] shadow-2xl flex items-center gap-4 font-black text-sm text-white min-w-[320px] backdrop-blur-md border",
+              showNotification.type === 'success' && "bg-emerald-600/90 border-emerald-400 shadow-emerald-200",
+              showNotification.type === 'error' && "bg-red-600/90 border-red-400 shadow-red-200"
+            )}
+          >
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              {showNotification.type === 'success' && <CheckCircle2 className="w-6 h-6" />}
+              {showNotification.type === 'error' && <X className="w-6 h-6" />}
+            </div>
+            <div className="flex-1">
+              <p className="uppercase tracking-widest text-[10px] opacity-80 mb-0.5">
+                {showNotification.type === 'success' ? 'Berhasil' : 'Gagal'}
+              </p>
+              <p className="leading-tight">{showNotification.message}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

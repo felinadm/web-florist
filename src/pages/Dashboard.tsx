@@ -9,15 +9,18 @@ export const Dashboard: React.FC = () => {
   const stats = useLiveQuery(async () => {
     const products = await db.products.toArray();
     const transactions = await db.transactions.toArray();
+    const settings = await db.settings.toCollection().first();
+    const lowStockThreshold = settings?.lowStockThreshold || 5;
     
     const totalSales = transactions.reduce((acc, curr) => acc + curr.totalHarga, 0);
-    const lowStockCount = products.filter(p => p.stock < 5).length;
+    const lowStockCount = products.filter(p => p.stock < lowStockThreshold).length;
     const activeProducts = products.filter(p => p.stock > 0).length;
 
     return {
       totalSales,
       totalTransactions: transactions.length,
       lowStockCount,
+      lowStockThreshold,
       totalProducts: activeProducts,
       recentTransactions: transactions.slice(-5).reverse()
     };
@@ -49,7 +52,7 @@ export const Dashboard: React.FC = () => {
       isUp: true
     },
     { 
-      label: 'Stok Kritis (<5)', 
+      label: `Stok Kritis (<${stats.lowStockThreshold})`, 
       value: stats.lowStockCount.toString(), 
       icon: AlertCircle, 
       color: 'text-amber-600', 

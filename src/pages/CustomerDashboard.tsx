@@ -90,8 +90,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
   const cartCount = cart.reduce((acc, curr) => acc + curr.jumlah, 0);
 
   const sendWhatsAppOrder = (transaction: Transaction) => {
-    const waNumber = shopSettings?.whatsapp || shopSettings?.telepon;
-    if (!waNumber) return;
+    const waNumber = shopSettings?.whatsapp || shopSettings?.telepon || '085878263582';
     
     // Clean number: remove non-digits and handle leading 0
     let cleanNumber = waNumber.replace(/\D/g, '');
@@ -100,16 +99,19 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
     }
     
     const itemsList = transaction.itemDibeli
-      .map(item => `- ${item.name} (${item.jumlah}x): ${formatCurrency(item.price * item.jumlah)}`)
+      .map((item, idx) => `${idx + 1}. ${item.name} (${item.jumlah}x) - ${formatCurrency(item.price * item.jumlah)}`)
       .join('\n');
       
-    const message = `Halo ${shopSettings?.namaToko || 'Zhuxin Florist'}!\n\n` +
-      `Saya ingin memesan bunga dengan rincian:\n` +
-      `Order ID: #${transaction.id.slice(0, 8)}\n\n` +
-      `*Pesanan:*\n${itemsList}\n\n` +
-      `*Total Bayar:* ${formatCurrency(transaction.totalHarga)}\n` +
-      `*Metode Bayar:* ${transaction.metodePembayaran.toUpperCase()}\n\n` +
-      `Mohon segera dikonfirmasi. Terima kasih!`;
+    const message = `*PESANAN BARU - ${shopSettings?.namaToko || 'Zhuxin Florist'}*\n` +
+      `--------------------------------\n` +
+      `Halo Admin, saya ingin memesan bunga dengan rincian berikut:\n\n` +
+      `*Order ID:* #${transaction.id.slice(0, 8)}\n` +
+      `*Tanggal:* ${new Date(transaction.tanggal).toLocaleString('id-ID')}\n\n` +
+      `*Daftar Pesanan:*\n${itemsList}\n\n` +
+      `*Total Pembayaran:* ${formatCurrency(transaction.totalHarga)}\n` +
+      `*Metode Pembayaran:* ${transaction.metodePembayaran.toUpperCase()}\n` +
+      `--------------------------------\n` +
+      `Mohon segera diproses ya. Terima kasih!`;
 
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${cleanNumber}?text=${encodedMessage}`, '_blank');
@@ -118,10 +120,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
   const handleCheckout = async () => {
     if (cart.length === 0) return;
 
+    const ppnRate = (shopSettings?.ppn || 0) / 100;
+    const totalWithTax = cartTotal * (1 + ppnRate);
+
     const transaction: Transaction = {
       id: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
       itemDibeli: [...cart],
-      totalHarga: cartTotal,
+      totalHarga: totalWithTax,
       metodePembayaran: paymentMethod,
       tanggal: Date.now()
     };
@@ -510,12 +515,12 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
                     <span>{formatCurrency(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between text-slate-500 font-medium">
-                    <span>Biaya Layanan</span>
-                    <span>Rp 2.000</span>
+                    <span>Pajak (PPN {shopSettings?.ppn || 0}%)</span>
+                    <span>{formatCurrency(cartTotal * ((shopSettings?.ppn || 0) / 100))}</span>
                   </div>
                   <div className="flex justify-between text-2xl font-black text-slate-900 pt-4">
                     <span>Total Bayar</span>
-                    <span className="text-rose-600">{formatCurrency(cartTotal + 2000)}</span>
+                    <span className="text-rose-600">{formatCurrency(cartTotal * (1 + (shopSettings?.ppn || 0) / 100))}</span>
                   </div>
                 </div>
 
@@ -597,6 +602,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
 
             <div className="flex flex-col gap-3">
               <button 
+                onClick={() => lastTransaction && sendWhatsAppOrder(lastTransaction)}
+                className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2"
+              >
+                <Phone className="w-5 h-5" />
+                KONFIRMASI VIA WHATSAPP
+              </button>
+              <button 
                 onClick={() => window.print()}
                 className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
               >
@@ -667,7 +679,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-rose-500 shrink-0" />
                 <span className="text-sm font-bold text-slate-600">
-                  {shopSettings?.telepon || '+62 8974220209'}
+                  {shopSettings?.telepon || '085878263582'}
                 </span>
               </li>
               <li className="flex items-center gap-3">

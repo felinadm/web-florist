@@ -39,6 +39,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'products', label: 'Kelola Produk', icon: Package },
     { id: 'pos', label: 'Kasir / PoS', icon: ShoppingCart },
+    { id: 'inventory', label: 'Stok & Barang', icon: PackagePlus },
     { id: 'suppliers', label: 'Data Supplier', icon: Truck },
     { id: 'purchases', label: 'Pembelian Barang', icon: PackagePlus },
     { id: 'history', label: 'Riwayat Jual', icon: History },

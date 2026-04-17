@@ -25,7 +25,7 @@ export const Suppliers: React.FC = () => {
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
-  const [showNotification, setShowNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [showNotification, setShowNotification] = useState<{message: string, type: 'success' | 'error' | 'warning'} | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -366,15 +366,31 @@ export const Suppliers: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Notification */}
+      {/* Global Notification Toast (SweetAlert Style) */}
       <AnimatePresence>
         {showNotification && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
-            className={cn("fixed bottom-8 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm text-white", showNotification.type === 'success' ? "bg-emerald-600" : "bg-red-600")}
+            initial={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
+            animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
+            className={cn(
+              "fixed bottom-10 left-1/2 z-[300] px-8 py-4 rounded-[28px] shadow-2xl flex items-center gap-4 font-black text-sm text-white min-w-[320px] backdrop-blur-md border",
+              showNotification.type === 'success' && "bg-emerald-600/90 border-emerald-400 shadow-emerald-200",
+              showNotification.type === 'error' && "bg-red-600/90 border-red-400 shadow-red-200",
+              showNotification.type === 'warning' && "bg-amber-500/90 border-amber-300 shadow-amber-200"
+            )}
           >
-            {showNotification.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-            {showNotification.message}
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              {showNotification.type === 'success' && <CheckCircle2 className="w-6 h-6" />}
+              {showNotification.type === 'error' && <X className="w-6 h-6" />}
+              {showNotification.type === 'warning' && <AlertCircle className="w-6 h-6" />}
+            </div>
+            <div className="flex-1">
+              <p className="uppercase tracking-widest text-[10px] opacity-80 mb-0.5">
+                {showNotification.type === 'success' ? 'Berhasil' : showNotification.type === 'error' ? 'Gagal' : 'Peringatan'}
+              </p>
+              <p className="leading-tight">{showNotification.message}</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

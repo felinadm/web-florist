@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
@@ -25,21 +25,42 @@ export const ProductManagement: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-  const [showNotification, setShowNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [showNotification, setShowNotification] = useState<{message: string, type: 'success' | 'error' | 'warning'} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form State
   const [formData, setFormData] = useState({
     name: '',
+    purchasePrice: '',
     price: '',
     stock: '',
+    unit: 'Tangkai',
     category: 'Umum',
     image: ''
   });
 
   // Reactive Query with Dexie
   const allProducts = useLiveQuery(() => db.products.toArray());
+  const shopSettings = useLiveQuery(() => db.settings.toCollection().first());
   
+  // Smart Pricing Logic
+  useEffect(() => {
+    if (formData.purchasePrice && shopSettings) {
+      const modal = parseNumber(formData.purchasePrice);
+      const marginType = shopSettings.marginType || 'percentage';
+      const marginVal = shopSettings.marginValue || 0;
+      
+      let sellingPrice = 0;
+      if (marginType === 'percentage') {
+        sellingPrice = modal + (modal * marginVal / 100);
+      } else {
+        sellingPrice = modal + marginVal;
+      }
+      
+      setFormData(prev => ({ ...prev, price: formatNumber(sellingPrice) }));
+    }
+  }, [formData.purchasePrice, shopSettings]);
+
   const products = allProducts?.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     p.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -82,8 +103,10 @@ export const ProductManagement: React.FC = () => {
       const productData: Product = {
         id: editingProduct?.id || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
         name: formData.name,
+        purchasePrice: parseNumber(formData.purchasePrice),
         price: parseNumber(formData.price),
         stock: parseNumber(formData.stock),
+        unit: formData.unit,
         category: formData.category,
         imageUrl: formData.image || undefined,
         createdAt: editingProduct?.createdAt || Date.now()
@@ -109,8 +132,10 @@ export const ProductManagement: React.FC = () => {
       setEditingProduct(product);
       setFormData({
         name: product.name,
+        purchasePrice: formatNumber(product.purchasePrice || 0),
         price: formatNumber(product.price),
         stock: formatNumber(product.stock),
+        unit: product.unit || 'Tangkai',
         category: product.category,
         image: product.imageUrl || ''
       });
@@ -118,8 +143,10 @@ export const ProductManagement: React.FC = () => {
       setEditingProduct(null);
       setFormData({
         name: '',
+        purchasePrice: '',
         price: '',
         stock: '',
+        unit: 'Tangkai',
         category: 'Umum',
         image: ''
       });
@@ -385,24 +412,50 @@ export const ProductManagement: React.FC = () => {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Harga (Rp)</label>
-                        <div className="relative">
-                          <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
-                          <input 
-                            required
-                            type="text" 
-                            value={formData.price}
-                            onChange={(e) => {
-                              const val = parseNumber(e.target.value);
-                              setFormData({...formData, price: formatNumber(val)});
-                            }}
-                            className="w-full pl-12 pr-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
-                            placeholder="0"
-                          />
+                    <div className="space-y-4">
+                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Harga Produk (HPP & Jual)</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase">Harga Beli (HPP)</label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">Rp</span>
+                            <input 
+                              required
+                              type="text" 
+                              value={formData.purchasePrice}
+                              onChange={(e) => {
+                                const val = parseNumber(e.target.value);
+                                setFormData({...formData, purchasePrice: formatNumber(val)});
+                              }}
+                              className="w-full pl-10 pr-4 py-3 bg-rose-50 border border-rose-100 rounded-xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 text-sm"
+                              placeholder="0"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase">Harga Jual</label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">Rp</span>
+                            <input 
+                              required
+                              type="text" 
+                              value={formData.price}
+                              onChange={(e) => {
+                                const val = parseNumber(e.target.value);
+                                setFormData({...formData, price: formatNumber(val)});
+                              }}
+                              className="w-full pl-10 pr-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all font-bold text-slate-800 text-sm"
+                              placeholder="0"
+                            />
+                          </div>
                         </div>
                       </div>
+                      <p className="text-[9px] text-slate-400 italic">
+                        * Harga Jual terhitung otomatis berdasarkan Margin Profit di Pengaturan.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Stok</label>
                         <input 
@@ -415,6 +468,17 @@ export const ProductManagement: React.FC = () => {
                           }}
                           className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
                           placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Satuan</label>
+                        <input 
+                          required
+                          type="text" 
+                          value={formData.unit}
+                          onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                          className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 placeholder:text-slate-400"
+                          placeholder="Tangkai, Buket, dll"
                         />
                       </div>
                     </div>
@@ -511,20 +575,31 @@ export const ProductManagement: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Notification Toast */}
+      {/* Global Notification Toast (SweetAlert Style) */}
       <AnimatePresence>
         {showNotification && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
+            animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
             className={cn(
-              "fixed bottom-8 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm",
-              showNotification.type === 'success' ? "bg-emerald-600 text-white" : "bg-red-600 text-white"
+              "fixed bottom-10 left-1/2 z-[300] px-8 py-4 rounded-[28px] shadow-2xl flex items-center gap-4 font-black text-sm text-white min-w-[320px] backdrop-blur-md border",
+              showNotification.type === 'success' && "bg-emerald-600/90 border-emerald-400 shadow-emerald-200",
+              showNotification.type === 'error' && "bg-red-600/90 border-red-400 shadow-red-200",
+              showNotification.type === 'warning' && "bg-amber-500/90 border-amber-300 shadow-amber-200"
             )}
           >
-            {showNotification.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-            {showNotification.message}
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              {showNotification.type === 'success' && <CheckCircle2 className="w-6 h-6" />}
+              {showNotification.type === 'error' && <X className="w-6 h-6" />}
+              {showNotification.type === 'warning' && <AlertCircle className="w-6 h-6" />}
+            </div>
+            <div className="flex-1">
+              <p className="uppercase tracking-widest text-[10px] opacity-80 mb-0.5">
+                {showNotification.type === 'success' ? 'Berhasil' : showNotification.type === 'error' ? 'Gagal' : 'Peringatan'}
+              </p>
+              <p className="leading-tight">{showNotification.message}</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -73,7 +73,8 @@ export const Kasir: React.FC = () => {
   };
 
   const subtotal = cart.reduce((acc, curr) => acc + (curr.price * curr.jumlah), 0);
-  const tax = subtotal * 0.1; // 10% tax
+  const taxRate = (shopSettings?.ppn || 0) / 100;
+  const tax = subtotal * taxRate;
   const total = subtotal + tax;
 
   const handleCheckout = async () => {
@@ -96,12 +97,24 @@ export const Kasir: React.FC = () => {
       // Save Transaction
       await db.transactions.put(transaction);
       
-      // Update Stock
+      // Update Stock & Log History
       for (const item of cart) {
         const product = await db.products.get(item.id);
         if (product) {
+          // 1. Update Stock
           await db.products.update(item.id, {
             stock: product.stock - item.jumlah
+          });
+
+          // 2. Log History
+          await db.stockHistory.add({
+            id: Math.random().toString(36).substring(2, 15),
+            productId: item.id,
+            type: 'OUT',
+            quantity: item.jumlah,
+            referenceId: transaction.id,
+            note: `Penjualan Kasir (ID #${transaction.id.slice(0, 8)})`,
+            timestamp: Date.now()
           });
         }
       }
@@ -155,11 +168,22 @@ export const Kasir: React.FC = () => {
                 {products.map((product) => (
                   <motion.button
                     key={product.id}
-                    onClick={() => addToCart(product)}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-white p-3 lg:p-4 rounded-2xl border border-slate-200 text-left hover:border-rose-300 hover:shadow-lg transition-all group relative overflow-hidden"
+                    onClick={() => product.stock > 0 && addToCart(product)}
+                    disabled={product.stock <= 0}
+                    whileTap={product.stock > 0 ? { scale: 0.95 } : {}}
+                    className={cn(
+                      "bg-white p-3 lg:p-4 rounded-2xl border text-left transition-all group relative overflow-hidden",
+                      product.stock > 0 
+                        ? "border-slate-200 hover:border-rose-300 hover:shadow-lg" 
+                        : "border-slate-100 opacity-60 grayscale cursor-not-allowed"
+                    )}
                   >
-                    <div className="aspect-square bg-slate-50 rounded-xl mb-2 lg:mb-3 flex items-center justify-center text-slate-300 group-hover:text-rose-200 transition-colors overflow-hidden">
+                    <div className="aspect-square bg-slate-50 rounded-xl mb-2 lg:mb-3 flex items-center justify-center text-slate-300 group-hover:text-rose-200 transition-colors overflow-hidden relative">
+                      {product.stock <= 0 && (
+                        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
+                          <span className="bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-widest">Stok Habis</span>
+                        </div>
+                      )}
                       {product.imageUrl ? (
                         <img 
                           src={product.imageUrl} 
@@ -178,7 +202,12 @@ export const Kasir: React.FC = () => {
                     <p className="text-rose-600 font-black text-sm lg:text-base mb-1 lg:mb-2 transition-colors">{formatCurrency(product.price)}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[60%] transition-colors">{product.category}</span>
-                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded transition-colors">Stok: {product.stock}</span>
+                      <span className={cn(
+                        "text-[9px] lg:text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors",
+                        product.stock > 0 ? "text-slate-500 bg-slate-100" : "text-red-500 bg-red-50"
+                      )}>
+                        Stok: {product.stock}
+                      </span>
                     </div>
                   </motion.button>
                 ))}
@@ -332,13 +361,15 @@ export const Kasir: React.FC = () => {
 
 const ReceiptTicket: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
   const shopSettings = useLiveQuery(() => db.settings.toCollection().first());
+  const calculatedSubtotal = transaction.itemDibeli.reduce((acc, item) => acc + (item.price * item.jumlah), 0);
+  const taxAmount = transaction.totalHarga - calculatedSubtotal;
   
   return (
     <div className="max-w-[300px] mx-auto text-slate-900">
       <div className="text-center border-b border-dashed border-slate-400 pb-4 mb-4">
         <h4 className="font-black text-base uppercase">{shopSettings?.namaToko || 'Zhuxin Florist'}</h4>
-        <p className="text-[10px]">Jl. Bunga Melati No. 123, Jakarta</p>
-        <p className="text-[10px]">Telp: +62 8974220209</p>
+        <p className="text-[10px]">{shopSettings?.alamat || 'Jl. Bunga Melati No. 123, Jakarta'}</p>
+        <p className="text-[10px]">Telp: {shopSettings?.telepon || '085878263582'}</p>
       </div>
       
       <div className="space-y-1 mb-4 text-[10px]">
@@ -373,11 +404,11 @@ const ReceiptTicket: React.FC<{ transaction: Transaction }> = ({ transaction }) 
       <div className="space-y-1 text-[10px]">
         <div className="flex justify-between">
           <span>Subtotal:</span>
-          <span>{(transaction.totalHarga / 1.1).toLocaleString()}</span>
+          <span>{calculatedSubtotal.toLocaleString()}</span>
         </div>
         <div className="flex justify-between">
-          <span>Pajak (10%):</span>
-          <span>{(transaction.totalHarga - (transaction.totalHarga / 1.1)).toLocaleString()}</span>
+          <span>Pajak ({shopSettings?.ppn || 0}%):</span>
+          <span>{taxAmount.toLocaleString()}</span>
         </div>
         <div className="flex justify-between font-black text-sm pt-2 border-t border-dashed border-slate-400 mt-2">
           <span>TOTAL:</span>
