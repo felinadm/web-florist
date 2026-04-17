@@ -71,11 +71,14 @@ export const Settings: React.FC = () => {
   };
 
   const handleResetDatabase = async () => {
-    if (window.confirm('Apakah Anda yakin ingin mereset database? Semua produk dan transaksi akan dihapus dan dikembalikan ke data awal.')) {
+    if (window.confirm('Apakah Anda yakin ingin mereset database? Semua produk, transaksi, supplier, dan pembelian akan dihapus dan dikembalikan ke data awal.')) {
       try {
-        await db.products.clear();
-        await db.transactions.clear();
-        // Settings are kept, but we could clear them too if needed
+        await db.transaction('rw', [db.products, db.transactions, db.suppliers, db.purchases], async () => {
+          await db.products.clear();
+          await db.transactions.clear();
+          await db.suppliers.clear();
+          await db.purchases.clear();
+        });
         window.location.reload(); // Reload to trigger seedData in App.tsx
       } catch (error) {
         console.error('Failed to reset database:', error);
@@ -88,20 +91,24 @@ export const Settings: React.FC = () => {
       const products = await db.products.toArray();
       const transactions = await db.transactions.toArray();
       const settings = await db.settings.toArray();
+      const suppliers = await db.suppliers.toArray();
+      const purchases = await db.purchases.toArray();
       
       const data = {
         products,
         transactions,
         settings,
+        suppliers,
+        purchases,
         exportDate: new Date().toISOString(),
-        version: '1.0'
+        version: '1.5' // Bumped version for new schema
       };
       
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `zhuxin-florist-data-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `zhuxin-florist-full-data-${new Date().toISOString().split('T')[0]}.json`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -128,13 +135,21 @@ export const Settings: React.FC = () => {
           throw new Error('Format file tidak valid.');
         }
 
-        await db.transaction('rw', db.products, db.transactions, db.settings, async () => {
+        await db.transaction('rw', [db.products, db.transactions, db.settings, db.suppliers, db.purchases], async () => {
           await db.products.clear();
           await db.transactions.clear();
           await db.settings.clear();
+          await db.suppliers.clear();
+          await db.purchases.clear();
           
           await db.products.bulkAdd(data.products);
           await db.transactions.bulkAdd(data.transactions);
+          if (data.suppliers && data.suppliers.length > 0) {
+            await db.suppliers.bulkAdd(data.suppliers);
+          }
+          if (data.purchases && data.purchases.length > 0) {
+            await db.purchases.bulkAdd(data.purchases);
+          }
           if (data.settings && data.settings.length > 0) {
             await db.settings.bulkAdd(data.settings);
           }

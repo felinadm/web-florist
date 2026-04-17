@@ -1,17 +1,21 @@
 import Dexie, { Table } from 'dexie';
-import { Product, Transaction, ShopSettings } from '../types';
+import { Product, Transaction, ShopSettings, Supplier, Purchase } from '../types';
 
 export class UMKMDatabase extends Dexie {
   products!: Table<Product>;
   transactions!: Table<Transaction>;
   settings!: Table<ShopSettings>;
+  suppliers!: Table<Supplier>;
+  purchases!: Table<Purchase>;
 
   constructor() {
     super('UMKMFloristDB_v2');
-    this.version(1).stores({
+    this.version(2).stores({
       products: 'id, name, category',
       transactions: 'id, tanggal',
-      settings: '++id'
+      settings: '++id',
+      suppliers: 'id, name, category',
+      purchases: 'id, supplierId, date'
     });
 
     // Initial data population using hotlinking from stable sources

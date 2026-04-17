@@ -33,4 +33,28 @@ export interface ShopSettings {
   email?: string;
 }
 
-export type View = 'dashboard' | 'products' | 'pos' | 'history' | 'settings' | 'reports' | 'customer' | 'login';
+export interface Supplier {
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+  category: string;
+}
+
+export interface PurchaseItem {
+  productId: string;
+  qty: number;
+  purchasePrice: number;
+  name?: string; // Cache name for history
+}
+
+export interface Purchase {
+  id: string;
+  supplierId: string;
+  supplierName?: string; // Cache name for history
+  date: number;
+  items: PurchaseItem[];
+  grandTotal: number;
+}
+
+export type View = 'dashboard' | 'products' | 'pos' | 'history' | 'settings' | 'reports' | 'suppliers' | 'purchases' | 'customer' | 'login';

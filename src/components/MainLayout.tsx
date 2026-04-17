@@ -12,7 +12,9 @@ import {
   User,
   LogOut,
   Settings,
-  BarChart3
+  BarChart3,
+  Truck,
+  PackagePlus
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { View } from '../types';
@@ -37,7 +39,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'products', label: 'Kelola Produk', icon: Package },
     { id: 'pos', label: 'Kasir / PoS', icon: ShoppingCart },
-    { id: 'history', label: 'Riwayat', icon: History },
+    { id: 'suppliers', label: 'Data Supplier', icon: Truck },
+    { id: 'purchases', label: 'Pembelian Barang', icon: PackagePlus },
+    { id: 'history', label: 'Riwayat Jual', icon: History },
     { id: 'reports', label: 'Laporan', icon: BarChart3 },
     { id: 'settings', label: 'Pengaturan', icon: Settings },
   ] as const;

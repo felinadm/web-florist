@@ -11,6 +11,8 @@ import { Kasir } from './pages/Kasir';
 import { History } from './pages/History';
 import { Settings } from './pages/Settings';
 import { Reports } from './pages/Reports';
+import { Suppliers } from './pages/Suppliers';
+import { Purchases } from './pages/Purchases';
 import { CustomerDashboard } from './pages/CustomerDashboard';
 import { Login } from './pages/Login';
 import { View, Product } from './types';
@@ -108,6 +110,8 @@ export default function App() {
       case 'products': return <ProductManagement />;
       case 'pos': return <Kasir />;
       case 'history': return <History />;
+      case 'suppliers': return <Suppliers />;
+      case 'purchases': return <Purchases />;
       case 'reports': return <Reports />;
       case 'settings': return <Settings />;
       default: return <Dashboard />;
@@ -119,6 +123,8 @@ export default function App() {
       case 'dashboard': return 'Dashboard';
       case 'products': return 'Koleksi Bunga';
       case 'pos': return 'Kasir Florist';
+      case 'suppliers': return 'Manajemen Supplier';
+      case 'purchases': return 'Pembelian Barang';
       case 'history': return 'Riwayat Pesanan';
       case 'reports': return 'Analisis Laporan';
       case 'settings': return 'Pengaturan Profil';
