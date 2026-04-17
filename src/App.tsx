@@ -49,13 +49,22 @@ export default function App() {
         { id: '8', name: 'Buket Hydrangea Biru', price: 275000, stock: 6, category: 'Buket', imageUrl: 'https://images.unsplash.com/photo-1508784411316-02b8cd4d3a3a?auto=format&fit=crop&w=800&q=80', createdAt: 1713190000007 },
       ];
 
-      const SEED_VERSION = 'v52';
+      const initialSuppliers = [
+        { id: 'sup-1', name: 'PT Bunga Nusantara', phone: '081234567890', address: 'Pasar Bunga Rawa Belong, Jakarta', category: 'Bunga Segar' },
+        { id: 'sup-2', name: 'Grosir Pot Cantik', phone: '085566778899', address: 'Sentra Keramik Plered, Purwakarta', category: 'Perlengkapan' }
+      ];
+
+      const SEED_VERSION = 'v53';
       const lastSeed = localStorage.getItem('lastSeedVersion');
       
       if (lastSeed !== SEED_VERSION) {
-        // Clear and re-seed to ensure images are updated
+        // Clear and re-seed
         await db.products.clear();
         await db.products.bulkAdd(initialProducts);
+        
+        await db.suppliers.clear();
+        await db.suppliers.bulkAdd(initialSuppliers);
+
         localStorage.setItem('lastSeedVersion', SEED_VERSION);
         console.log(`Database Reset & Seeded to Version ${SEED_VERSION}`);
       }
