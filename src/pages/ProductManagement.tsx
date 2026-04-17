@@ -375,6 +375,7 @@ export const ProductManagement: React.FC = () => {
                             src={formData.image} 
                             className="w-full h-full object-cover" 
                             alt="Preview" 
+                            referrerPolicy="no-referrer"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
                             }}
@@ -401,9 +402,11 @@ export const ProductManagement: React.FC = () => {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Nama Produk</label>
+                      <label htmlFor="product-name" className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Nama Produk</label>
                       <input 
                         required
+                        id="product-name"
+                        name="name"
                         type="text" 
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -416,11 +419,13 @@ export const ProductManagement: React.FC = () => {
                       <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Harga Produk (HPP & Jual)</label>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase">Harga Beli (HPP)</label>
+                          <label htmlFor="purchase-price" className="text-[10px] font-bold text-slate-400 uppercase">Harga Beli (HPP)</label>
                           <div className="relative">
                             <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">Rp</span>
                             <input 
                               required
+                              id="purchase-price"
+                              name="purchasePrice"
                               type="text" 
                               value={formData.purchasePrice}
                               onChange={(e) => {
@@ -433,11 +438,13 @@ export const ProductManagement: React.FC = () => {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase">Harga Jual</label>
+                          <label htmlFor="selling-price" className="text-[10px] font-bold text-slate-400 uppercase">Harga Jual</label>
                           <div className="relative">
                             <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">Rp</span>
                             <input 
                               required
+                              id="selling-price"
+                              name="price"
                               type="text" 
                               value={formData.price}
                               onChange={(e) => {
@@ -457,9 +464,11 @@ export const ProductManagement: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Stok</label>
+                        <label htmlFor="product-stock" className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Stok</label>
                         <input 
                           required
+                          id="product-stock"
+                          name="stock"
                           type="text" 
                           value={formData.stock}
                           onChange={(e) => {
@@ -471,9 +480,11 @@ export const ProductManagement: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Satuan</label>
+                        <label htmlFor="product-unit" className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Satuan</label>
                         <input 
                           required
+                          id="product-unit"
+                          name="unit"
                           type="text" 
                           value={formData.unit}
                           onChange={(e) => setFormData({...formData, unit: e.target.value})}
@@ -484,8 +495,10 @@ export const ProductManagement: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Kategori</label>
+                      <label htmlFor="product-category" className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 transition-colors">Kategori</label>
                       <select 
+                        id="product-category"
+                        name="category"
                         value={formData.category}
                         onChange={(e) => setFormData({...formData, category: e.target.value})}
                         className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800 appearance-none transition-colors"

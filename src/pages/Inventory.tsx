@@ -57,12 +57,24 @@ export const Inventory: React.FC = () => {
       return;
     }
 
-    setIsSubmitting(true);
+      setIsSubmitting(true);
     try {
-      const product = await db.products.get(opnameProductId);
-      if (!product) throw new Error('Produk tidak ditemukan');
+      const product = products?.find(p => p.id === opnameProductId);
+      if (!product) {
+        setShowNotification({ message: 'Pilih produk terlebih dahulu!', type: 'error' });
+        setTimeout(() => setShowNotification(null), 3000);
+        setIsSubmitting(false);
+        return;
+      }
 
       const qty = parseInt(opnameQty);
+      if (isNaN(qty) || qty <= 0) {
+        setShowNotification({ message: 'Jumlah harus angka positif!', type: 'error' });
+        setTimeout(() => setShowNotification(null), 3000);
+        setIsSubmitting(false);
+        return;
+      }
+
       const newStock = opnameType === 'IN' ? product.stock + qty : product.stock - qty;
 
       if (newStock < 0) {
@@ -220,7 +232,12 @@ export const Inventory: React.FC = () => {
                             <div className="flex items-center gap-4">
                               <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                                 {p.imageUrl ? (
-                                  <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                                  <img 
+                                    src={p.imageUrl} 
+                                    alt={p.name} 
+                                    className="w-full h-full object-cover" 
+                                    referrerPolicy="no-referrer"
+                                  />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-slate-300">
                                     <Package className="w-6 h-6" />
@@ -287,8 +304,10 @@ export const Inventory: React.FC = () => {
 
                 <form onSubmit={handleOpnameSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Produk</label>
+                    <label htmlFor="opname-product" className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Produk</label>
                     <select 
+                      id="opname-product"
+                      name="productId"
                       value={opnameProductId}
                       onChange={(e) => setOpnameProductId(e.target.value)}
                       className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 outline-none transition-all font-bold text-slate-800"
@@ -303,6 +322,7 @@ export const Inventory: React.FC = () => {
                     <div className="flex bg-slate-100 p-1 rounded-2xl">
                       <button 
                         type="button"
+                        id="type-in"
                         onClick={() => setOpnameType('IN')}
                         className={cn(
                           "flex-1 py-3 rounded-xl text-[10px] font-black transition-all flex items-center justify-center gap-2",
@@ -314,6 +334,7 @@ export const Inventory: React.FC = () => {
                       </button>
                       <button 
                         type="button"
+                        id="type-out"
                         onClick={() => setOpnameType('OUT')}
                         className={cn(
                           "flex-1 py-3 rounded-xl text-[10px] font-black transition-all flex items-center justify-center gap-2",
@@ -327,8 +348,10 @@ export const Inventory: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Jumlah Perubahan</label>
+                    <label htmlFor="opname-qty" className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Jumlah Perubahan</label>
                     <input 
+                      id="opname-qty"
+                      name="quantity"
                       type="number" 
                       value={opnameQty}
                       onChange={(e) => setOpnameQty(e.target.value)}
@@ -338,8 +361,10 @@ export const Inventory: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Alasan Penyesuaian</label>
+                    <label htmlFor="opname-note" className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Alasan Penyesuaian</label>
                     <textarea 
+                      id="opname-note"
+                      name="note"
                       value={opnameNote}
                       onChange={(e) => setOpnameNote(e.target.value)}
                       placeholder="Contoh: Barang rusak, bonus supplier, hilang, dll..."
@@ -440,7 +465,10 @@ export const Inventory: React.FC = () => {
                </div>
 
                <div className="flex items-center gap-3">
+                  <label htmlFor="history-product-filter" className="sr-only">Filter Produk</label>
                   <select 
+                    id="history-product-filter"
+                    name="selectedProduct"
                     value={selectedProductId || ''}
                     onChange={(e) => setSelectedProductId(e.target.value || null)}
                     className="px-6 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-slate-900/5 font-bold text-sm min-w-[240px]"

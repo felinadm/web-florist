@@ -267,7 +267,7 @@ export const Settings: React.FC = () => {
                   <div className="relative group cursor-pointer mb-8">
                     <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-rose-50 shadow-2xl bg-slate-50 flex items-center justify-center transition-colors">
                       {logoBase64 ? (
-                        <img src={logoBase64} alt="Logo Toko" className="w-full h-full object-cover" />
+                        <img src={logoBase64} alt="Logo Toko" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       ) : (
                         <User className="w-20 h-20 text-slate-300" />
                       )}
@@ -288,11 +288,13 @@ export const Settings: React.FC = () => {
                 <div className="bg-white p-8 lg:p-10 rounded-[40px] border border-slate-200 shadow-sm space-y-8 transition-colors">
                   <div className="grid grid-cols-1 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                      <label htmlFor="shop-name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
                         <Store className="w-3.5 h-3.5" />
                         Nama Brand Toko
                       </label>
                       <input 
+                        id="shop-name"
+                        name="namaToko"
                         type="text" 
                         value={namaToko}
                         onChange={(e) => setNamaToko(e.target.value)}
@@ -303,12 +305,14 @@ export const Settings: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                        <label htmlFor="shop-phone" className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
                           <Phone className="w-3.5 h-3.5" />
                           No. Telepon Aktif
                         </label>
                         <div className="relative">
                           <input 
+                            id="shop-phone"
+                            name="telepon"
                             type="text" 
                             value={telepon}
                             onChange={(e) => setTelepon(e.target.value)}
@@ -318,11 +322,13 @@ export const Settings: React.FC = () => {
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                        <label htmlFor="shop-whatsapp" className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           Instan WhatsApp
                         </label>
                         <input 
+                          id="shop-whatsapp"
+                          name="whatsapp"
                           type="text" 
                           value={whatsapp}
                           onChange={(e) => setWhatsapp(e.target.value)}
@@ -334,11 +340,13 @@ export const Settings: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                        <label htmlFor="shop-instagram" className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
                           <Instagram className="w-3.5 h-3.5" />
                           Username Instagram
                         </label>
                         <input 
+                          id="shop-instagram"
+                          name="instagram"
                           type="text" 
                           value={instagram}
                           onChange={(e) => setInstagram(e.target.value)}
@@ -347,11 +355,13 @@ export const Settings: React.FC = () => {
                         />
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                        <label htmlFor="shop-email" className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
                           <Mail className="w-3.5 h-3.5" />
                           Email Korespondensi
                         </label>
                         <input 
+                          id="shop-email"
+                          name="email"
                           type="text" 
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
@@ -362,11 +372,13 @@ export const Settings: React.FC = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
+                      <label htmlFor="shop-address" className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 transition-colors px-1">
                         <MapPin className="w-3.5 h-3.5" />
                         Alamat Operasional
                       </label>
                       <textarea 
+                        id="shop-address"
+                        name="alamat"
                         value={alamat}
                         onChange={(e) => setAlamat(e.target.value)}
                         placeholder="Jl. Toko Bunga No. 88, Central Jakarta..."
@@ -444,9 +456,11 @@ export const Settings: React.FC = () => {
                       </div>
 
                       <div className="space-y-4">
-                        <label className="text-[10px] font-black text-rose-400 uppercase tracking-widest px-1">Besaran Nilai Margin</label>
+                        <label htmlFor="margin-value" className="text-[10px] font-black text-rose-400 uppercase tracking-widest px-1">Besaran Nilai Margin</label>
                         <div className="relative">
                           <input 
+                            id="margin-value"
+                            name="marginValue"
                             type="text" 
                             value={marginValue}
                             onChange={(e) => setMarginValue(formatNumber(parseNumber(e.target.value)))}
@@ -475,9 +489,11 @@ export const Settings: React.FC = () => {
 
                     <div className="space-y-6 bg-slate-50 p-8 rounded-[32px] border border-slate-100">
                       <div className="space-y-4">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Tarif Pajak (PPN %)</label>
+                        <label htmlFor="tax-ppn" className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Tarif Pajak (PPN %)</label>
                         <div className="relative">
                           <input 
+                            id="tax-ppn"
+                            name="ppn"
                             type="text" 
                             value={ppn}
                             onChange={(e) => setPpn(formatNumber(parseNumber(e.target.value)))}
@@ -491,9 +507,11 @@ export const Settings: React.FC = () => {
                       </div>
 
                       <div className="space-y-4">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Ambang Batas Stok Minimum</label>
+                        <label htmlFor="low-stock-threshold" className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Ambang Batas Stok Minimum</label>
                         <div className="relative">
                           <input 
+                            id="low-stock-threshold"
+                            name="lowStockThreshold"
                             type="text" 
                             value={lowStockThreshold}
                             onChange={(e) => setLowStockThreshold(formatNumber(parseNumber(e.target.value)))}

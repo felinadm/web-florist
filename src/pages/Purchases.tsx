@@ -169,10 +169,15 @@ export const Purchases: React.FC = () => {
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <h3 className="font-black text-slate-800 uppercase tracking-widest text-xs">Riwayat Restok</h3>
           <div className="relative w-64">
+            <label htmlFor="search-purchase" className="sr-only">Cari transaksi</label>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
+              id="search-purchase"
+              name="search"
               type="text" 
               placeholder="Cari transaksi..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500/10"
             />
           </div>
@@ -269,8 +274,10 @@ export const Purchases: React.FC = () => {
                 <div className="space-y-6">
                   {/* Supplier Selection */}
                   <div>
-                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Supplier</label>
+                    <label htmlFor="purchase-supplier" className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Supplier</label>
                     <select 
+                      id="purchase-supplier"
+                      name="selectedSupplierId"
                       value={selectedSupplierId}
                       onChange={(e) => setSelectedSupplierId(e.target.value)}
                       className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-bold text-slate-800"
@@ -289,8 +296,10 @@ export const Purchases: React.FC = () => {
                        Tambah Item
                     </h4>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Produk</label>
+                      <label htmlFor="purchase-product" className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Produk</label>
                       <select 
+                        id="purchase-product"
+                        name="selectedProductId"
                         value={selectedProductId}
                         onChange={(e) => setSelectedProductId(e.target.value)}
                         className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-bold text-sm"
@@ -301,8 +310,10 @@ export const Purchases: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Jumlah</label>
+                        <label htmlFor="purchase-qty" className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Jumlah</label>
                         <input 
+                          id="purchase-qty"
+                          name="itemQty"
                           type="text" 
                           value={itemQty}
                           onChange={(e) => setItemQty(formatNumber(parseNumber(e.target.value)))}
@@ -311,8 +322,10 @@ export const Purchases: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Harga Beli (Rp)</label>
+                        <label htmlFor="purchase-price" className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Harga Beli (Rp)</label>
                         <input 
+                          id="purchase-price"
+                          name="itemPrice"
                           type="text" 
                           value={itemPrice}
                           onChange={(e) => setItemPrice(formatNumber(parseNumber(e.target.value)))}

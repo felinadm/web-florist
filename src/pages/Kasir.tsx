@@ -570,10 +570,12 @@ const CartContent: React.FC<CartContentProps> = ({
 
       {paymentMethod === 'cash' && (
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest transition-colors">Nominal Bayar</label>
+          <label htmlFor="cash-payment" className="text-[10px] font-black text-slate-400 uppercase tracking-widest transition-colors">Nominal Bayar</label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400">Rp</span>
             <input 
+              id="cash-payment"
+              name="nominalBayar"
               type="text" 
               value={nominalBayar}
               onChange={(e) => {

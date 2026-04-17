@@ -678,9 +678,14 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ onAdminRet
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-rose-500 shrink-0" />
-                <span className="text-sm font-bold text-slate-600">
+                <a 
+                  href={`https://wa.me/62${(shopSettings?.telepon || '085878263582').replace(/\D/g, '').replace(/^0/, '')}`} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="text-sm font-bold text-slate-600 hover:text-rose-600 transition-colors"
+                >
                   {shopSettings?.telepon || '085878263582'}
-                </span>
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-rose-500 shrink-0" />
