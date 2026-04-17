@@ -14,12 +14,14 @@ import {
   Settings,
   BarChart3,
   Truck,
-  PackagePlus
+  PackagePlus,
+  AlertTriangle
 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, DEFAULT_FLOWER_IMAGE } from '../lib/utils';
 import { View } from '../types';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/dexieDb';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -33,13 +35,21 @@ const ADMIN_AVATAR = "https://images.unsplash.com/photo-1582750433449-648ed127bb
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, onViewChange, onLogout, title }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const shopSettings = useLiveQuery(() => db.settings.toCollection().first());
+  const lowStockThreshold = shopSettings?.lowStockThreshold || 5;
+  const lowStockProducts = useLiveQuery(async () => {
+    const products = await db.products.toArray();
+    return products.filter(p => p.stock < lowStockThreshold);
+  }, [lowStockThreshold]) || [];
+  
+  const lowStockCount = lowStockProducts.length;
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'products', label: 'Kelola Produk', icon: Package },
     { id: 'pos', label: 'Kasir / PoS', icon: ShoppingCart },
-    { id: 'inventory', label: 'Stok & Barang', icon: PackagePlus },
+    { id: 'inventory', label: 'Stok & Barang', icon: PackagePlus, badge: lowStockCount > 0 ? lowStockCount : undefined },
     { id: 'suppliers', label: 'Data Supplier', icon: Truck },
     { id: 'purchases', label: 'Pembelian Barang', icon: PackagePlus },
     { id: 'history', label: 'Riwayat Jual', icon: History },
@@ -71,7 +81,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
                 setIsMobileMenuOpen(false);
               }}
               className={cn(
-                "w-full flex items-center p-3 rounded-xl transition-all duration-200 group",
+                "w-full flex items-center p-3 rounded-xl transition-all duration-200 group relative",
                 isActive 
                   ? "bg-rose-600 text-white shadow-lg shadow-rose-600/20" 
                   : "hover:bg-slate-50 hover:text-rose-600"
@@ -82,6 +92,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
                 isActive ? "text-white" : "text-slate-400 group-hover:text-rose-600"
               )} />
               <span className="ml-3 font-medium">{item.label}</span>
+              {'badge' in item && item.badge && (
+                <span className={cn(
+                  "ml-auto px-2 py-0.5 rounded-full text-[10px] font-black tracking-widest",
+                  isActive ? "bg-white text-rose-600" : "bg-rose-500 text-white"
+                )}>
+                  {item.badge}
+                </span>
+              )}
             </button>
           );
         })}
@@ -109,7 +127,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
           className="w-full flex items-center p-2 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-left group"
         >
           <div className="w-9 h-9 rounded-full bg-rose-500 flex items-center justify-center text-white font-bold text-sm shadow-inner overflow-hidden relative">
-            <img src={ADMIN_AVATAR} alt="Admin Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            <img 
+              src={ADMIN_AVATAR} 
+              alt="Admin Avatar" 
+              className="w-full h-full object-cover" 
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+              }}
+            />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <Settings className="w-4 h-4 text-white" />
             </div>
@@ -189,10 +215,84 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
               />
             </div>
 
-            <button className="p-2 hover:bg-slate-100 rounded-full text-slate-500 relative transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={cn(
+                  "p-2 rounded-full relative transition-all",
+                  showNotifications ? "bg-rose-50 text-rose-600" : "hover:bg-slate-100 text-slate-500"
+                )}
+              >
+                <Bell className="w-5 h-5" />
+                {lowStockCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-rose-500 rounded-full border-2 border-white flex items-center justify-center text-[8px] text-white font-black animate-bounce">
+                    {lowStockCount}
+                  </span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowNotifications(false)} 
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-2 w-80 bg-white rounded-[24px] shadow-2xl border border-slate-200 z-50 overflow-hidden"
+                    >
+                      <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                        <span className="text-xs font-black text-slate-900 uppercase tracking-widest">Pemberitahuan</span>
+                        <span className="text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full font-black">{lowStockCount} ALERTI</span>
+                      </div>
+                      <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
+                        {lowStockProducts.length > 0 ? (
+                          <div className="divide-y divide-slate-50">
+                            {lowStockProducts.map(p => (
+                              <button
+                                key={p.id}
+                                onClick={() => {
+                                  onViewChange('inventory');
+                                  setShowNotifications(false);
+                                }}
+                                className="w-full p-4 flex items-center gap-3 hover:bg-rose-50 transition-colors text-left group"
+                              >
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                                  <AlertTriangle className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-bold text-slate-800 truncate group-hover:text-rose-600 transition-colors">{p.name}</p>
+                                  <p className="text-[10px] text-slate-500 font-medium">Sisa stok: <span className="text-rose-600 font-black">{p.stock} {p.unit}</span></p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="py-12 text-center">
+                            <Bell className="w-12 h-12 text-slate-200 mx-auto mb-2" />
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Tidak ada pemberitahuan</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 border-t border-slate-100 bg-slate-50/50">
+                        <button 
+                          onClick={() => {
+                            onViewChange('inventory');
+                            setShowNotifications(false);
+                          }}
+                          className="w-full py-2 text-[10px] font-black text-rose-600 uppercase tracking-widest hover:bg-white rounded-lg transition-all"
+                        >
+                          Lihat Semua Inventaris
+                        </button>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1"></div>
 
@@ -201,7 +301,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, currentView, o
               className="flex items-center gap-2 p-1 hover:bg-slate-100 rounded-full transition-colors group"
             >
               <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 overflow-hidden border border-rose-200">
-                <img src={ADMIN_AVATAR} alt="Admin Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <img 
+                  src={ADMIN_AVATAR} 
+                  alt="Admin Profile" 
+                  className="w-full h-full object-cover" 
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                  }}
+                />
               </div>
               <span className="hidden sm:block text-xs font-black text-slate-700 group-hover:text-rose-600 transition-colors uppercase tracking-tight">
                 {shopSettings?.namaToko || 'Admin'}

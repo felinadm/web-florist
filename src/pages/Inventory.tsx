@@ -19,7 +19,7 @@ import {
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/dexieDb';
 import { Product, StockHistory } from '../types';
-import { formatCurrency, cn } from '../lib/utils';
+import { formatCurrency, cn, DEFAULT_FLOWER_IMAGE } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 type InventoryTab = 'dashboard' | 'opname' | 'history';
@@ -237,6 +237,9 @@ export const Inventory: React.FC = () => {
                                     alt={p.name} 
                                     className="w-full h-full object-cover" 
                                     referrerPolicy="no-referrer"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                                    }}
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-slate-300">

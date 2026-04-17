@@ -14,7 +14,8 @@ import {
   X,
   Printer,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  AlertCircle
 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/dexieDb';
@@ -33,6 +34,7 @@ export const Kasir: React.FC = () => {
   const receiptRef = useRef<HTMLDivElement>(null);
 
   const shopSettings = useLiveQuery(() => db.settings.toCollection().first());
+  const lowStockThreshold = shopSettings?.lowStockThreshold || 5;
 
   // Reactive Products Query
   const allProducts = useLiveQuery(() => db.products.toArray());
@@ -40,10 +42,11 @@ export const Kasir: React.FC = () => {
   const products = allProducts?.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          p.category.toLowerCase().includes(searchTerm.toLowerCase());
-    return p.stock > 0 && matchesSearch;
+    return matchesSearch; // Removed p.stock > 0 filter to show out of stock too if needed, or keep it but I'll add the threshold warning
   });
 
   const addToCart = (product: Product) => {
+    if (product.stock <= 0) return;
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
@@ -179,11 +182,19 @@ export const Kasir: React.FC = () => {
                     )}
                   >
                     <div className="aspect-square bg-slate-50 rounded-xl mb-2 lg:mb-3 flex items-center justify-center text-slate-300 group-hover:text-rose-200 transition-colors overflow-hidden relative">
-                      {product.stock <= 0 && (
-                        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
-                          <span className="bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-widest">Stok Habis</span>
+                      {product.stock <= 0 ? (
+                        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center p-2">
+                           <X className="w-8 h-8 text-white mb-1 opacity-80" />
+                           <span className="bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-widest shadow-lg">Habis</span>
                         </div>
-                      )}
+                      ) : product.stock < lowStockThreshold ? (
+                        <div className="absolute top-2 right-2 z-10">
+                           <span className="bg-amber-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest shadow-sm flex items-center gap-1">
+                              <AlertCircle className="w-2 h-2" />
+                              Rendah
+                           </span>
+                        </div>
+                      ) : null}
                       {product.imageUrl ? (
                         <img 
                           src={product.imageUrl} 

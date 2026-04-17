@@ -12,8 +12,9 @@ export const Dashboard: React.FC = () => {
     const settings = await db.settings.toCollection().first();
     const lowStockThreshold = settings?.lowStockThreshold || 5;
     
+    const lowStockItems = products.filter(p => p.stock < lowStockThreshold);
     const totalSales = transactions.reduce((acc, curr) => acc + curr.totalHarga, 0);
-    const lowStockCount = products.filter(p => p.stock < lowStockThreshold).length;
+    const lowStockCount = lowStockItems.length;
     const activeProducts = products.filter(p => p.stock > 0).length;
 
     return {
@@ -21,6 +22,7 @@ export const Dashboard: React.FC = () => {
       totalTransactions: transactions.length,
       lowStockCount,
       lowStockThreshold,
+      lowStockItems: lowStockItems.slice(0, 5), // Only show top 5 in dashboard
       totalProducts: activeProducts,
       recentTransactions: transactions.slice(-5).reverse()
     };
@@ -108,6 +110,41 @@ export const Dashboard: React.FC = () => {
           </motion.div>
         ))}
       </div>
+
+      {/* Low Stock Warning Section */}
+      {stats.lowStockCount > 0 && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-amber-50 border border-amber-200 rounded-[32px] p-6 lg:p-8 overflow-hidden relative"
+        >
+          <div className="absolute -right-8 -top-8 w-48 h-48 bg-amber-200/20 rounded-full blur-3xl" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200 shrink-0">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-amber-900 tracking-tight">Peringatan Stok Rendah</h3>
+                <p className="text-amber-700/80 font-medium text-sm">Ada {stats.lowStockCount} produk yang stoknya sudah di bawah batas minimum.</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {stats.lowStockItems.map(item => (
+                <div key={item.id} className="bg-white/60 backdrop-blur-md px-4 py-2 rounded-xl border border-amber-200/50 flex items-center gap-3">
+                  <span className="font-bold text-xs text-amber-900">{item.name}</span>
+                  <span className="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{item.stock} {item.unit}</span>
+                </div>
+              ))}
+              {stats.lowStockCount > 5 && (
+                <div className="bg-amber-500 text-white px-4 py-2 rounded-xl text-[10px] font-black flex items-center">
+                  +{stats.lowStockCount - 5} LAGI
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Transactions */}

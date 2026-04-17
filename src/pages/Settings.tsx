@@ -25,7 +25,7 @@ import {
 import { db } from '../lib/dexieDb';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn, formatNumber, parseNumber } from '../lib/utils';
+import { cn, formatNumber, parseNumber, DEFAULT_FLOWER_IMAGE } from '../lib/utils';
 import { ShopSettings } from '../types';
 
 type SettingTab = 'profile' | 'finance' | 'system';
@@ -267,7 +267,15 @@ export const Settings: React.FC = () => {
                   <div className="relative group cursor-pointer mb-8">
                     <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-rose-50 shadow-2xl bg-slate-50 flex items-center justify-center transition-colors">
                       {logoBase64 ? (
-                        <img src={logoBase64} alt="Logo Toko" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <img 
+                          src={logoBase64} 
+                          alt="Logo Toko" 
+                          className="w-full h-full object-cover" 
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = DEFAULT_FLOWER_IMAGE;
+                          }}
+                        />
                       ) : (
                         <User className="w-20 h-20 text-slate-300" />
                       )}
